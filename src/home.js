@@ -16,6 +16,7 @@ function HomePage() {
   return (
     <div>
       <h2>Welcome to the HomePage</h2>
+      <h2>handleUpload</h2>
       
       <div>
               <input type="file" onChange={e=>{setFile(e.target.files[0])}}/>
