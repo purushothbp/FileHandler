@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json())
 
 
-mongoose.connect('mongodb://localhost:27017/filehandler');
+mongoose.connect('mongodb://localhost:27017/documents');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -24,17 +24,29 @@ const upload = multer({
     storage: storage
 })
 app.post('/upload', upload.single('file'), (req, res) => {
+    console.log(req)
     console.log(JSON.stringify(req.file))
-    const user = new UserModel({file: JSON.stringify(req.file)})
+    const user = new UserModel({ file: JSON.stringify(req.file) })
     user.save()
         .then(result => {
             res.status(200).send(result)
-            console.log('hello',result)
+            console.log('hello', result)
         })
         .catch(error => {
             res.send(error)
         })
 })
+
+app.get('/getUsers', (req, res) => {
+    UserModel.find()
+        .then(users => {
+            console.log(res);
+            res.status(200).send(users);
+        })
+        .catch(error => {
+            res.status(500).send(error);
+        });
+});
 
 
 app.listen(3001, () => {
