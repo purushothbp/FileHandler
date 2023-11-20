@@ -11,7 +11,7 @@ const Home = () => {
     const [datlist, setDataList] = useState([0]);
     const fileInputRef = React.createRef();
     const apiUrl = "http://localhost:3001";
-    const Navigate= useNavigate()
+    const Navigate = useNavigate()
 
 
     const fetchData = async () => {
@@ -29,15 +29,14 @@ const Home = () => {
     };
 
     const handleFileChange = async (e) => {
-        const selectedFiles = e.target.files;
-        console.log(selectedFiles[0]);
-        console.log(typeof (selectedFiles))
-        const selectedFile = e.target.files[0];
-        const formData = new FormData();
-        formData.append('file', selectedFile);
+        const selectedFile = e.target.files;
+        console.log(selectedFile[0],"==>2selectedfile")
+        const formData = new FormData()
+        formData.append('file', selectedFile[0])
+        console.log(formData)
         try {
             await axios.post(`${apiUrl}/upload`, formData);
-            console.log('File uploaded successfully');
+            console.log('file uploaded successfully');
             fetchData();
         } catch (error) {
             console.log('Error uploading file', error);
@@ -48,10 +47,21 @@ const Home = () => {
         fetchData()
     }, [])
 
-    const EditFile = () => {
+    const editFile = () => {
         Navigate('/Edit');
-        
+
     }
+
+    const deleteFile = async (id) => {
+        try {
+            await axios.delete(`${apiUrl}/deleteUser/${id}`);
+            console.log('File deleted successfully');
+            fetchData(); // Refresh the data after deletion
+        } catch (error) {
+            console.log('Error deleting file', error);
+        }
+    };
+
     return (
         <div >
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".doc, .docx, .pdf, .xlsx, .jpg, .jpeg, .png" onChange={handleFileChange} />
@@ -73,14 +83,14 @@ const Home = () => {
                         <tr key={val._id}>
                             <td>{index + 1}</td>
                             <td>{val.file && JSON.parse(val.file)?.originalname}</td>
-                            <td> <button className="btn btn-outline-success" onClick={ ()=> EditFile()}><FontAwesomeIcon icon={faEdit} /> Edit</button></td>
+                            <td> <button className="btn btn-outline-success" onClick={() => editFile()}><FontAwesomeIcon icon={faEdit} /> Edit</button></td>
                             <td><button button className="btn btn-outline-success mx-3"><FontAwesomeIcon icon={faDownload} />Download</button></td>
-                            <td><button button className="btn btn-outline-danger"><FontAwesomeIcon icon={faTrash} />Delet</button></td>
+                            <td><button button className="btn btn-outline-danger" onClick={() => deleteFile(val._id)}><FontAwesomeIcon icon={faTrash} />Delete</button></td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        
+
         </div>
     )
 }

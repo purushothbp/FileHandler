@@ -77,8 +77,8 @@ const Signin = () => {
           return res.username === values.loginusername && res.password === values.loginpassword
         })
 
-        if(checkLoginCredential){
-          console.log("success") 
+        if (checkLoginCredential) {
+          console.log("success")
           nave("/Home")
         }
 
