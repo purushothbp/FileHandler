@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 </CInputGroupText>
 
 const registerformvalidateion = (values) => {
+  
     const errors = {};
 
     if(!values.username){

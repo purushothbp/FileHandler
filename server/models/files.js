@@ -1,11 +1,9 @@
 
 const mongoose = require('mongoose');
 const fileSchema = new mongoose.Schema({
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
     filename: String,
+    data: Buffer,
+    userId:String,
   });
   
   const FileModel = mongoose.model('File', fileSchema);

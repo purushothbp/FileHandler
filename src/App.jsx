@@ -15,7 +15,7 @@ function App() {
           <Route path='/' Component={signin}/>
           <Route path='/Home' Component={Home}/>
           <Route path='/Edit' Component={Edit}/>node
-          <Route path='Register'Component={Register}/>
+          <Route path='/Register'Component={Register}/>
         </Routes>
       </Router>
     </div>
