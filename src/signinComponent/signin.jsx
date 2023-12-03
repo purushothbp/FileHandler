@@ -52,7 +52,7 @@ const Signin = () => {
   ) : null;
 
   const handleNextButtonClick = () => {
-    nave('/home');
+    nave('/Home');
   };
 
 
@@ -70,20 +70,17 @@ const Signin = () => {
         loginpassword: ''
 
       },
+
       onSubmit: (values) => {
-        console.log(values)
         const checkLoginCredential = logindata.find((res) => {
-          console.log(res, "==>logindetails");
-          return res.username === values.loginusername && res.password === values.loginpassword
+          return ((res.username === values.loginusername && res.password === values.loginpassword) || (res.email === values.loginusername && res.password === values.loginpassword))
         })
 
         if (checkLoginCredential) {
+          localStorage.setItem('userlogin', checkLoginCredential.username)
           console.log("success")
           nave("/Home")
         }
-
-
-
       }
     }
   )
