@@ -1,0 +1,16 @@
+#NG_GLOGIN_BTN{
+    width: fit-content;
+    user-select: none;
+    position: relative;
+}
+
+#NG_GLOGIN_BTN.disabled::after{
+    cursor: not-allowed;
+    content: " ";
+    background-color: rgba(255, 255, 255, 0.277);
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}

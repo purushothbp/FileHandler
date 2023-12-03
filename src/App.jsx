@@ -25,6 +25,7 @@ function App() {
 
   return (
     <div>
+<<<<<<< HEAD
       <BrowserRouter>
       <Routes>
               <Route path='/' Component={signin} />
@@ -34,6 +35,16 @@ function App() {
             </Routes>
       </BrowserRouter>
 
+=======
+     <Router>
+        <Routes>
+          <Route path='/' Component={signin}/>
+          <Route path='/Home' Component={Home}/>
+          <Route path='/Edit' Component={Edit}/>node
+          <Route path='/Register'Component={Register}/>
+        </Routes>
+      </Router>
+>>>>>>> 20c5d85039177a02ff5ebe0f4101c3521f8d03e5
     </div>
   );
 }

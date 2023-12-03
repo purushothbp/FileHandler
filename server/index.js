@@ -60,7 +60,7 @@ app.get('/users', async (req, res) => {
 
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
-    // Create a new file document
+    // Create a new file documen
     console.log(req,"req.body")
     const userId = req.body.user;
     console.log('Received id', userId);

@@ -19,6 +19,35 @@ import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useFormik } from 'formik';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
+=======
+<CInputGroupText>
+  <FontAwesomeIcon icon={faUser} />
+  <FontAwesomeIcon icon={faLock}/>
+  <FontAwesomeIcon icon={faEnvelope}/>
+</CInputGroupText>
+
+const registerformvalidateion = (values) => {
+  
+    const errors = {};
+
+    if(!values.username){
+        errors.username ="user name is required"
+    }
+
+    if(!values.email){
+        errors.email ="password is required"
+    }
+    if(!values.password){
+        errors.password ="password is required"
+    }
+    if(!values.reenterpassword){
+        errors.reenterpassword ="pls Re enter the password is required"
+    }
+    return errors
+}
+
+>>>>>>> 20c5d85039177a02ff5ebe0f4101c3521f8d03e5
 
 const Register = () => {
   const apiUrl = "http://localhost:3001";
