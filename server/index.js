@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
-// const path = require('path');
+const path = require('path');
 const UserModel = require('./models/users');
 const FileModel = require('./models/files');
 
@@ -82,6 +82,29 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
+app.put('/updateUser/:fileId', upload.single('file'), async (req, res) => {
+  try {
+    const fileId = req.params.fileId;
+    const userId = req.body.user;
+
+    const existingFile = await FileModel.findById(fileId);
+
+    if (!existingFile) {
+      return res.status(404).send('File not found.');
+    }
+
+    existingFile.filename = req.file.originalname;
+    existingFile.data = req.file.buffer;
+
+    await existingFile.save();
+
+    res.status(200).send('File updated successfully!');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 app.get('/files/:userId', async (req, res) => {
   const userId = req.params.userId;
@@ -95,6 +118,65 @@ app.get('/files/:userId', async (req, res) => {
   }
 });
 
+app.delete('/deleteUser/:fileId', async (req, res) => {
+  try {
+    const fileId = req.params.fileId;
+
+    const result = await FileModel.deleteOne({ _id: fileId });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send('File not found.');
+    }
+
+    res.status(200).send('File deleted successfully!');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/download/:fileId', async (req, res) => {
+  try {
+    const fileId = req.params.fileId;
+
+    const file = await FileModel.findById(fileId);
+
+    if (!file) {
+      return res.status(404).send('File not found.');
+    }
+
+    const extension = path.extname(file.filename);
+    const contentType = getContentTypeFromExtension(extension);
+
+    if (!contentType) {
+      return res.status(500).send('Unknown file type.');
+    }
+
+    res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    res.contentType(contentType);
+    res.send(file.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+function getContentTypeFromExtension(extension) {
+  switch (extension.toLowerCase()) {
+    case '.pdf':
+      return 'application/pdf';
+    case '.doc':
+    case '.docx':
+      return 'application/msword';
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.png':
+      return 'image/png';
+    default:
+      return null;
+  }
+}
 app.get('/getUsers', (req, res) => {
   UserModel.find()
     .then(users => {

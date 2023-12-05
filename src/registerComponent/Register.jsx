@@ -19,8 +19,7 @@ import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useFormik } from 'formik';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-=======
+
 <CInputGroupText>
   <FontAwesomeIcon icon={faUser} />
   <FontAwesomeIcon icon={faLock}/>
@@ -47,7 +46,6 @@ const registerformvalidateion = (values) => {
     return errors
 }
 
->>>>>>> 20c5d85039177a02ff5ebe0f4101c3521f8d03e5
 
 const Register = () => {
   const apiUrl = "http://localhost:3001";

@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import signin from './signinComponent/signin';
 import Home from './homeComponent/Home';
-import Edit from './editComponent/Edit';
 import Register from './registerComponent/Register';
 import { useEffect, useState } from 'react';
 
@@ -25,26 +24,15 @@ function App() {
 
   return (
     <div>
-<<<<<<< HEAD
+
       <BrowserRouter>
       <Routes>
               <Route path='/' Component={signin} />
               <Route path='Register' Component={Register} />
               <Route path='/Home' Component={Home} />
-              <Route path='/Edit' Component={Edit} />
             </Routes>
       </BrowserRouter>
 
-=======
-     <Router>
-        <Routes>
-          <Route path='/' Component={signin}/>
-          <Route path='/Home' Component={Home}/>
-          <Route path='/Edit' Component={Edit}/>node
-          <Route path='/Register'Component={Register}/>
-        </Routes>
-      </Router>
->>>>>>> 20c5d85039177a02ff5ebe0f4101c3521f8d03e5
     </div>
   );
 }

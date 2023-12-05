@@ -4,11 +4,11 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faEdit, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom';
-import Edit from '../editComponent/Edit';
 
 const Home = () => {
 
     const [datlist, setDataList] = useState([0]);
+    const [editingFile, setEditingFile] = useState(null);
     const fileInputRef = React.createRef();
     const apiUrl = "http://localhost:3001";
     const Navigate = useNavigate()
@@ -19,10 +19,10 @@ const Home = () => {
         try {
             // const response = await axios.get(`${apiUrl}/getUsers`);
             // console.log(response.data)
-            console.log(userId,"user id")
-            console.log(`${apiUrl}/files/${userId}`,"usergetlink")
+            console.log(userId, "user id")
+            console.log(`${apiUrl}/files/${userId}`, "usergetlink")
             const responseFiles = await axios.get(`${apiUrl}/files/${userId}`)
-            console.log(responseFiles,"particular files")
+            console.log(responseFiles, "particular files")
             setDataList(responseFiles.data);
         } catch (error) {
             console.log(error);
@@ -42,7 +42,12 @@ const Home = () => {
         formData.append('user', userId)
         console.log(formData)
         try {
-            await axios.post(`${apiUrl}/upload`, formData);
+            if (editingFile) {
+                await axios.put(`${apiUrl}/updateUser/${editingFile._id}`, formData);
+                setEditingFile(null);
+            } else {
+                await axios.post(`${apiUrl}/upload`, formData);
+            }
             console.log('file uploaded successfully');
             fetchData();
         } catch (error) {
@@ -54,16 +59,17 @@ const Home = () => {
         fetchData()
     }, [])
 
-    const editFile = () => {
-        Navigate('/Edit');
-
+    const editFile = (file) => {
+        console.log(file, "file data")
+        setEditingFile(file);
+        fileInputRef.current.click();
     }
 
     const deleteFile = async (id) => {
         try {
             await axios.delete(`${apiUrl}/deleteUser/${id}`);
             console.log('File deleted successfully');
-            fetchData(); // Refresh the data after deletion
+            fetchData();
         } catch (error) {
             console.log('Error deleting file', error);
         }
@@ -88,11 +94,13 @@ const Home = () => {
                 <tbody>
                     {datlist.map((val, index) => (
                         <tr key={val._id}>
-                            {console.log(val,"val data")}
+                            {/* {console.log(val,"val data")} */}
                             <td>{index + 1}</td>
                             <td>{val.filename}</td>
-                            <td> <button className="btn btn-outline-success" onClick={() => editFile()}><FontAwesomeIcon icon={faEdit} /> Edit</button></td>
-                            <td><button button className="btn btn-outline-success mx-3"><FontAwesomeIcon icon={faDownload} />Download</button></td>
+                            <td> <button className="btn btn-outline-success" onClick={() => editFile(val)}><FontAwesomeIcon icon={faEdit} /> Edit</button></td>
+                            <td> <a href={`http://localhost:3001/download/${val._id}`} className="btn btn-outline-success mx-3" target="_blank" rel="noopener noreferrer" ><FontAwesomeIcon icon={faDownload} /> Download
+                            </a>
+                            </td>
                             <td><button button className="btn btn-outline-danger" onClick={() => deleteFile(val._id)}><FontAwesomeIcon icon={faTrash} />Delete</button></td>
                         </tr>
                     ))}
