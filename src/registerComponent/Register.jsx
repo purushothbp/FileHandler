@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock, faEnvelope } from '@fortawesome/free-solid-svg-icons';
-
+import './Register.css'
 import {
   CButton,
   CCard,
@@ -22,28 +22,28 @@ import { useNavigate } from 'react-router-dom';
 
 <CInputGroupText>
   <FontAwesomeIcon icon={faUser} />
-  <FontAwesomeIcon icon={faLock}/>
-  <FontAwesomeIcon icon={faEnvelope}/>
+  <FontAwesomeIcon icon={faLock} />
+  <FontAwesomeIcon icon={faEnvelope} />
 </CInputGroupText>
 
 const registerformvalidateion = (values) => {
-  
-    const errors = {};
 
-    if(!values.username){
-        errors.username ="user name is required"
-    }
+  const errors = {};
 
-    if(!values.email){
-        errors.email ="password is required"
-    }
-    if(!values.password){
-        errors.password ="password is required"
-    }
-    if(!values.reenterpassword){
-        errors.reenterpassword ="pls Re enter the password is required"
-    }
-    return errors
+  if (!values.username) {
+    errors.username = "user name is required"
+  }
+
+  if (!values.email) {
+    errors.email = "password is required"
+  }
+  if (!values.password) {
+    errors.password = "password is required"
+  }
+  if (!values.reenterpassword) {
+    errors.reenterpassword = "pls Re enter the password is required"
+  }
+  return errors
 }
 
 

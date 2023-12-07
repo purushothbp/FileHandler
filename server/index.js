@@ -22,13 +22,13 @@ const upload = multer({
 })
 
 
+
 app.post('/Register', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      // User exists, check password
       const passwordMatch = await existingUser.comparePassword(password);
       if (passwordMatch) {
         return res.status(200).json({ message: 'Login successful.' });
@@ -60,7 +60,6 @@ app.get('/users', async (req, res) => {
 
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
-    // Create a new file documen
     console.log(req,"req.body")
     const userId = req.body.user;
     console.log('Received id', userId);
@@ -186,6 +185,34 @@ app.get('/getUsers', (req, res) => {
       res.status(500).send(error);
     });
 });
+
+app.post('/login', async (req, res) => {
+  const { loginusername, loginpassword } = req.body;
+
+  console.log(loginusername,loginpassword,"values=<<")
+
+  try {
+    const existingUser = await UserModel.findOne({
+      $or: [{ username: loginusername }, { email: loginusername }],
+    });
+
+    if (existingUser) {
+      const passwordMatch = await existingUser.comparePassword(loginpassword);
+
+      if (passwordMatch) {
+        return res.status(200).json({ message: 'Login successful.' });
+      } else {
+        return res.status(401).json({ message: 'Invalid username or password.' });
+      }
+    } else {
+      return res.status(401).json({ message: 'User not found.' });
+    }
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 
 app.listen(3001, () => {
   console.log(`http://localhost:${3001}`)

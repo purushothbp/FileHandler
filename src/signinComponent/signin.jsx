@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
+import { fetchUserData } from '../services';
 
 import {
   CButton,
@@ -20,7 +21,6 @@ import {
   CRow,
 
 } from '@coreui/react';
-import axios from 'axios';
 import { useFormik } from 'formik';
 
 <CInputGroupText>
@@ -34,6 +34,19 @@ const Signin = () => {
   const nave = useNavigate();
 
   const [logindata, setLoginData] = useState({})
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userData = await fetchUserData();
+        setLoginData(userData);
+      } catch (error) {
+        console.error('Error setting user data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
 
   const handleLoginSuccess = (credentialResponse) => {
@@ -57,12 +70,7 @@ const Signin = () => {
   };
 
 
-  useEffect(() => {
-    axios.get("http://localhost:3001/users").then((res) => {
-      console.log(res)
-      setLoginData(res.data)
-    })
-  }, [])
+
 
   const loginCredential = useFormik(
     {
@@ -72,19 +80,33 @@ const Signin = () => {
 
       },
 
-      onSubmit: (values) => {
-        const checkLoginCredential = logindata.find((res) => {
-          return ((res.username === values.loginusername && res.password === values.loginpassword) || (res.email === values.loginusername && res.password === values.loginpassword))
-        })
-
-        if (checkLoginCredential) {
-          localStorage.setItem('userlogin', checkLoginCredential.username)
-          console.log("success")
-          nave("/Home")
+      onSubmit: async (values) => {
+        try {
+          const response = await fetch('http://localhost:3001/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(values),
+          });
+    
+          const data = await response.json();
+    
+          if (response.ok) {
+            // Login successful
+            localStorage.setItem('userlogin', values.loginusername);
+            console.log('Login success');
+            nave('/Home');
+          } else {
+            // Login failed
+            console.log('Login failed:', data.message);
+            // You can handle the error message display or other actions here
+          }
+        } catch (error) {
+          console.error('Error logging in:', error);
         }
       }
-    }
-  )
+    })
 
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
@@ -101,7 +123,7 @@ const Signin = () => {
                       <CInputGroupText>
                         <FontAwesomeIcon icon={faUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" name='loginusername' onChange={loginCredential.handleChange} />
+                      <CFormInput placeholder="Username or email" autoComplete="username" name='loginusername' onChange={loginCredential.handleChange} />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>

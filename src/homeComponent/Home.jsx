@@ -1,73 +1,56 @@
 import './Home.css';
-import axios from 'axios';
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faEdit, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate } from 'react-router-dom';
+import { deleteFile,  fetchFiles, updateFile, uploadFile } from '../services';
 
 const Home = () => {
 
-    const [datlist, setDataList] = useState([0]);
+    const [dataList, setDataList] = useState([]);
     const [editingFile, setEditingFile] = useState(null);
     const fileInputRef = React.createRef();
-    const apiUrl = "http://localhost:3001";
-    const Navigate = useNavigate()
-
-
-    const fetchData = async () => {
-        const userId = localStorage.getItem('userlogin');
-        try {
-            // const response = await axios.get(`${apiUrl}/getUsers`);
-            // console.log(response.data)
-            console.log(userId, "user id")
-            console.log(`${apiUrl}/files/${userId}`, "usergetlink")
-            const responseFiles = await axios.get(`${apiUrl}/files/${userId}`)
-            console.log(responseFiles, "particular files")
-            setDataList(responseFiles.data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
 
     const handleButtonClick = () => {
         fileInputRef.current.click();
     };
 
     const handleFileChange = async (e) => {
-        const userId = localStorage.getItem('userlogin');
-        const selectedFile = e.target.files;
-        console.log(selectedFile[0], "==>2selectedfile")
-        const formData = new FormData()
-        formData.append('file', selectedFile[0]);
-        formData.append('user', userId)
-        console.log(formData)
+        const selectedFile = e.target.files[0];
         try {
             if (editingFile) {
-                await axios.put(`${apiUrl}/updateUser/${editingFile._id}`, formData);
+                await updateFile(editingFile._id, selectedFile);
                 setEditingFile(null);
             } else {
-                await axios.post(`${apiUrl}/upload`, formData);
+                await uploadFile(selectedFile);
             }
-            console.log('file uploaded successfully');
+            console.log('File operation completed successfully');
             fetchData();
         } catch (error) {
-            console.log('Error uploading file', error);
+            console.log('Error during file operation', error);
         }
-
     };
+
+    const fetchData = async () => {
+        try {
+            const data = await fetchFiles();
+            setDataList(data);
+        } catch (error) {
+            console.log('Error fetching data:', error);
+        }
+    };
+
     useEffect(() => {
-        fetchData()
-    }, [])
+        fetchData();
+    }, []);
 
     const editFile = (file) => {
-        console.log(file, "file data")
         setEditingFile(file);
         fileInputRef.current.click();
-    }
+    };
 
-    const deleteFile = async (id) => {
+    const deleteFileHandler = async (id) => {
         try {
-            await axios.delete(`${apiUrl}/deleteUser/${id}`);
+            await deleteFile(id);
             console.log('File deleted successfully');
             fetchData();
         } catch (error) {
@@ -92,16 +75,14 @@ const Home = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {datlist.map((val, index) => (
+                    {dataList.map((val, index) => (
                         <tr key={val._id}>
                             {/* {console.log(val,"val data")} */}
                             <td>{index + 1}</td>
                             <td>{val.filename}</td>
                             <td> <button className="btn btn-outline-success" onClick={() => editFile(val)}><FontAwesomeIcon icon={faEdit} /> Edit</button></td>
-                            <td> <a href={`http://localhost:3001/download/${val._id}`} className="btn btn-outline-success mx-3" target="_blank" rel="noopener noreferrer" ><FontAwesomeIcon icon={faDownload} /> Download
-                            </a>
-                            </td>
-                            <td><button button className="btn btn-outline-danger" onClick={() => deleteFile(val._id)}><FontAwesomeIcon icon={faTrash} />Delete</button></td>
+                            <td> <a href={`http://localhost:3001/download/${val._id}`} className="btn btn-outline-success mx-3" target="_blank" rel="noopener noreferrer" ><FontAwesomeIcon icon={faDownload} /> Download</a> </td>
+                            <td><button button className="btn btn-outline-danger" onClick={() => deleteFileHandler(val._id)}><FontAwesomeIcon icon={faTrash} />Delete</button></td>
                         </tr>
                     ))}
                 </tbody>
