@@ -1,0 +1,86 @@
+Requirements need to be changed in project:
+
+    -need to comment what the component about also include for all
+    
+    -need to change the file uploading requirements like max size and etc., 
+    - Adobe, Microsift office files (docx, xlx, xlxs, pdf, doc, docx, jpeg, jpg, png)
+    Allowed file size
+        - Max: 50MB
+        - Min: 1MB
+        - Resolution: 1024 x 1024
+
+    -need to give the access to the user who has logged in before itself, 
+        -also include the LOGOUT button that hits to login page again.
+    
+    - need to give the access and also every operations to the google login too.
+
+CRUD operations on files
+- Delete (soft)
+-need to use winston or morgon instead console log,
+-also include expexted output for the input too.
+
+Where to store?
+    - S3
+    - Meta in MongoDB
+        - file url (s3 url)
+        - file properties
+            - size
+            - name
+            - file type
+        - who uploaded the file
+        - when it got uploaded
+        - more
+
+        Create S3 bucket if does not exists
+
+    Setup S3 lifecycle policies for file age
+        - Move the files from S3 to Glacier for all the files with age >=30 days
+        - use S3 lifecycle policy in boto3 to define the above criteria
+
+Scan the file for Virus
+    - Quarantine if any virus is found
+    - Scan during download
+
+Need validators in React & Node JS
+
+File upload:
+    multipart
+    fully uploaded/success or failed. should not have .part files
+
+Unit tests 
+
+Tasks
+Effort
+Final delivery
+
+-- need  to unclude the seperate file for string
+-- need the userid validation tooo
+
+    --User login validation:
+        A)
+        1. When the user logins successfully (user id, password are valid):
+        - system shall generate an 256 bit encrypted  uuid(v4) 'auth token' [use crypto npm]
+        - system shall persist the above info along with the user id [user id -> token]
+
+        2. Next time, user hits the login page, 
+        - the request will have auth token
+        - system shall validate the auth token along with user id from DB
+        - if match is found, the authorization is successful otherwise failed
+
+        3. Authorization filter:
+        - In api server, implement the above logic as a auth filter
+        - Include the auth filter in all APIs
+
+        ******
+
+        B) 
+        Google login:
+        1. When the user logins successfully
+        - from UI you should be able to pass the auth token to backend
+        - in backend, store the info as in A.1
+
+        2. Next time, user hits the login page, 
+        - the request will have auth token
+        - system shall validate the auth token along with user id from DB
+            - system shall also check with google api if the above token is valid
+        - if match is found, the authorization is successful otherwise failed

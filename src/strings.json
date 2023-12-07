@@ -1,0 +1,13 @@
+{
+    "lengthError": "Username and password must be at least 8 characters long.",
+    "loginSuccess": "Login successful.",
+    "loginError": "Invalid username or password.",
+    "registrationSuccess": "Registration successful.",
+    "internalError": "Internal server error.",
+    "invalid User": "Invalid User",
+    "fileUploadSuccess":"File Uploaded Successsfully",
+    "fileNotFOund": "File Not Found",
+    "fileDeletedSuccess": "File Deleted Succesfully",
+    "usernotfound":"User Not Found",
+    "unknownFileType": "Unknown File Type"
+  }
