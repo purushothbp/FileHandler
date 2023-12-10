@@ -1,0 +1,6 @@
+is the port already running need to solve means 
+    -1st need to get like 
+        -sudo lsof -i :PORT
+    -2nd need to kill the port like 
+        -sudo kill -9 <PID> (pid from the given data from step 1)
+        

@@ -84,3 +84,8 @@ Final delivery
         - system shall validate the auth token along with user id from DB
             - system shall also check with google api if the above token is valid
         - if match is found, the authorization is successful otherwise failed
+
+
+
+
+        password need to be encrypted and comparing;

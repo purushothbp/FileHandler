@@ -56,11 +56,11 @@ app.post('/Register', async (req, res) => {
 
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
-    console.log(req,"req.body")
+    console.log(req, "req.body")
     const userId = req.body.user;
     console.log('Received id', userId);
     if (!userId) {
-      console.log({message: strings['invalid User']})
+      console.log({ message: strings['invalid User'] })
     }
     const file = new FileModel({
       filename: req.file.originalname,
@@ -70,10 +70,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     await file.save();
 
-    res.status(201).send({message: strings.fileUploadSuccess});
+    res.status(201).send({ message: strings.fileUploadSuccess });
   } catch (error) {
     console.error(error);
-    res.status(500).send({message: strings.internalError});
+    res.status(500).send({ message: strings.internalError });
   }
 });
 
@@ -84,7 +84,7 @@ app.put('/updateUser/:fileId', upload.single('file'), async (req, res) => {
     const existingFile = await FileModel.findById(fileId);
 
     if (!existingFile) {
-      return res.status(404).send({message: strings.fileNotFOund});
+      return res.status(404).send({ message: strings.fileNotFOund });
     }
 
     existingFile.filename = req.file.originalname;
@@ -92,10 +92,10 @@ app.put('/updateUser/:fileId', upload.single('file'), async (req, res) => {
 
     await existingFile.save();
 
-    res.status(200).send({message: strings.fileUploadSuccess});
+    res.status(200).send({ message: strings.fileUploadSuccess });
   } catch (error) {
     console.error(error);
-    res.status(500).send({message: strings.internalError});
+    res.status(500).send({ message: strings.internalError });
   }
 });
 
@@ -119,13 +119,13 @@ app.delete('/deleteUser/:fileId', async (req, res) => {
     const result = await FileModel.deleteOne({ _id: fileId });
 
     if (result.deletedCount === 0) {
-      return res.status(404).send({message: strings.fileNotFOund});
+      return res.status(404).send({ message: strings.fileNotFOund });
     }
 
-    res.status(200).send({message: strings.fileDeletedSuccess});
+    res.status(200).send({ message: strings.fileDeletedSuccess });
   } catch (error) {
     console.error(error);
-    res.status(500).send({message: strings.internalError});
+    res.status(500).send({ message: strings.internalError });
   }
 });
 
@@ -136,14 +136,14 @@ app.get('/download/:fileId', async (req, res) => {
     const file = await FileModel.findById(fileId);
 
     if (!file) {
-      return res.status(404).send({message: strings.fileNotFOund});
+      return res.status(404).send({ message: strings.fileNotFOund });
     }
 
     const extension = path.extname(file.filename);
     const contentType = getContentTypeFromExtension(extension);
 
     if (!contentType) {
-      return res.status(500).send({message: strings.unknownFileType});
+      return res.status(500).send({ message: strings.unknownFileType });
     }
 
     res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
@@ -151,7 +151,7 @@ app.get('/download/:fileId', async (req, res) => {
     res.send(file.data);
   } catch (error) {
     console.error(error);
-    res.status(500).send({message: strings.internalError});
+    res.status(500).send({ message: strings.internalError });
   }
 });
 
@@ -181,36 +181,39 @@ app.get('/getUsers', (req, res) => {
     });
 });
 
+
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const email = req.body.loginusername;
+  const password = req.body.loginpassword;
 
   console.log('Received login request:', { email, password });
 
   try {
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.trim() });
+
+    console.log('User from database:', user);
 
     if (!user) {
       console.log('User not found.');
       return res.status(401).json({ message: strings.loginError });
     }
 
-    const userId = user._id; 
-    const storedPassword = user.password; 
-
-    const passwordMatch = await UserModel.comparePassword(password, storedPassword);
+    const passwordMatch = await user.comparePassword(password);
 
     if (passwordMatch) {
       console.log('Login successful.');
-      return res.status(200).json({ userId, message: strings.loginSuccess });
+      return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
     } else {
       console.log('Invalid password.');
-      return res.status(401).json({ message: strings.loginError });
+      return res.status(401).json({ message: strings.invalidPassword });
     }
   } catch (error) {
     console.error('Error logging in user:', error);
     res.status(500).json({ message: strings.internalError });
   }
 });
+
+
 
 
 

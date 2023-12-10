@@ -1,22 +1,21 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   username: String,
-  email: String,
-  password: String,
+  email: { type: String, required: true },
+  password: { type: String, required: true },
 });
 
-// Define the comparePassword method
-userSchema.methods.comparePassword = async function(loginpassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
-    const passwordMatch = await bcrypt.compare(loginpassword, this.loginpassword);
-    return passwordMatch;
+    // const passwordMatch = await bcrypt.compare(candidatePassword, this.password);
+     return (candidatePassword === this.password) ? true : false
   } catch (error) {
-    throw error; // Handle the error appropriately, log it, or return false
+    throw error;
   }
 };
 
+const UserModel = mongoose.model('users', userSchema);
 
-const UserModel = mongoose.model("users", userSchema)
-module.exports = UserModel
+module.exports = UserModel;
