@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const apiUrl = "http://localhost:3001";
+const apiUrl = process.env.REACT_APP_BASE_API_URL;
+console.log(apiUrl)
 
 export const fetchFiles = async () => {
     const userId = localStorage.getItem('userlogin');
@@ -57,10 +58,10 @@ export const downloadFile = (fileId) => {
 
 export const fetchUserData = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/users`);
-      return response.data;
+        const response = await axios.get(`${apiUrl}/users`);
+        return response.data;
     } catch (error) {
-      console.error('Error fetching user data:', error);
-      throw error;
+        console.error('Error fetching user data:', error);
+        throw error;
     }
-  };
+};
