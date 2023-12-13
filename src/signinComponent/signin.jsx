@@ -21,7 +21,8 @@ import {
   CRow,
 
 } from '@coreui/react';
-import { useFormik } from 'formik';
+import { useFormik} from 'formik';
+import { singinValidation } from '../validateion';
 
 <CInputGroupText>
   <FontAwesomeIcon icon={faUser} />
@@ -105,7 +106,8 @@ const Signin = () => {
         } catch (error) {
           console.error('Error logging in:', error);
         }
-      }
+      },
+      validate:singinValidation
     })
 
   return (
@@ -123,8 +125,17 @@ const Signin = () => {
                       <CInputGroupText>
                         <FontAwesomeIcon icon={faUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username or email" autoComplete="username" name='loginusername' onChange={loginCredential.handleChange} />
+                      <CFormInput placeholder="Username or email" autoComplete="username" 
+                      name='loginusername' onChange={loginCredential.handleChange}
+                      onBlur={loginCredential.handleBlur}
+                      value={loginCredential.values.loginusername}
+                      className={loginCredential.touched.loginusername && loginCredential.errors.loginusername ? 'is-invalid' : ''}
+                      />
+                      {loginCredential.touched.loginusername && loginCredential.errors.loginusername && (
+                      <div className="invalid-feedback">{loginCredential.errors.loginusername}</div>
+                    )}
                     </CInputGroup>
+                    
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
                         <FontAwesomeIcon icon={faLock} />
@@ -134,8 +145,15 @@ const Signin = () => {
                         placeholder="Password"
                         name='loginpassword'
                         onChange={loginCredential.handleChange}
+                        onBlur={loginCredential.handleBlur}
+                        value={loginCredential.values.loginpassword}
                         autoComplete="current-password"
+                      className={loginCredential.touched.loginpassword && loginCredential.errors.loginpassword ? 'is-invalid' : ''}
+
                       />
+                      {loginCredential.touched.loginpassword && loginCredential.errors.loginpassword && (
+                      <div className="invalid-feedback">{loginCredential.errors.loginpassword}</div>
+                    )}
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>

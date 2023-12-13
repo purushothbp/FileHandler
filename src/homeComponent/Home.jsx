@@ -1,7 +1,7 @@
 import './Home.css';
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUpload, faEdit, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faUpload, faEdit, faDownload, faTrash, faRightToBracket } from '@fortawesome/free-solid-svg-icons'
 import { deleteFile,  fetchFiles, updateFile, uploadFile } from '../services';
 
 const Home = () => {
@@ -61,10 +61,9 @@ const Home = () => {
     return (
         <div className='bg-colour' >
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".doc, .docx, .pdf, .xlsx, .jpg, .jpeg, .png" onChange={handleFileChange} />
-            <button type="button" onClick={handleButtonClick} class="btn btn-primary mx-5 mt-1"><FontAwesomeIcon icon={faUpload} />Upload</button>
-
-            {/* <p>{console.log(JSON.parse(datlist[0].file).originalname,"==>datalist")}</p> */}
-            <table className='direct'>
+            <button type="button" onClick={handleButtonClick} className="btn btn-primary mx-5 mt-1"><FontAwesomeIcon icon={faUpload} />Upload</button>
+             <button type="button"  className="btn btn-primary mt-1 buttonstyle"><FontAwesomeIcon icon={faRightToBracket} />Logout</button>    
+            <table className='tablestyle'>
                 <thead>
                     <tr>
                         <th className='center'>S.No</th>
