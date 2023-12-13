@@ -89,3 +89,4 @@ Final delivery
 
 
         password need to be encrypted and comparing;
+        need to include fName and LName on username;

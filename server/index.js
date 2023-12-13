@@ -10,6 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
+const bcrypt= require('bcrypt')
 
 
 mongoose.connect('mongodb://localhost:27017/documents');
@@ -26,7 +27,7 @@ const upload = multer({
 app.post('/Register', async (req, res) => {
   const { username, email, password } = req.body;
 
-  if (username.length > 8 || password.length > 8) {
+  if (username.length > 10 || password.length > 10) {
     return res.status(400).json({ message: strings.invalidLength });
   }
 
@@ -43,7 +44,10 @@ app.post('/Register', async (req, res) => {
       }
     }
 
-    const newUser = new UserModel({ username, email, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Hashed Password:', hashedPassword);
+
+    const newUser = new UserModel({ username, email, password: hashedPassword });
     await newUser.save();
 
     res.status(201).json({ message: strings.registrationSuccess });
@@ -52,6 +56,7 @@ app.post('/Register', async (req, res) => {
     res.status(500).json({ message: strings.internalError });
   }
 });
+
 
 
 app.post('/upload', upload.single('file'), async (req, res) => {
@@ -198,15 +203,16 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: strings.loginError });
     }
 
-    const passwordMatch = await user.comparePassword(password);
-
-    if (passwordMatch) {
-      console.log('Login successful.');
-      return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
-    } else {
-      console.log('Invalid password.');
-      return res.status(401).json({ message: strings.invalidPassword });
-    }
+    bcrypt.compare(password, user.password, (err, passwordMatch) => {
+      if (passwordMatch) {
+        console.log('Login successful.');
+        return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
+      } else {
+        console.log('Invalid password.');
+        return res.status(401).json({ message: strings.invalidPassword });
+        
+      }
+    });
   } catch (error) {
     console.error('Error logging in user:', error);
     res.status(500).json({ message: strings.internalError });

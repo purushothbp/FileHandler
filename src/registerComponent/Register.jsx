@@ -20,6 +20,7 @@ import { useFormik } from 'formik';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+
 <CInputGroupText>
   <FontAwesomeIcon icon={faUser} />
   <FontAwesomeIcon icon={faLock} />
@@ -64,12 +65,14 @@ const Register = () => {
       axios.post(`${apiUrl}/register`, values)
         .then((res) => {
           console.log("success", res);
+          redirect("../");
         })
         .catch((error) => {
           console.log("error", error);
+          
         });
 
-      redirect("../");
+      
     },
     validate: registerformvalidateion
   });
