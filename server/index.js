@@ -62,7 +62,7 @@ app.post('/Register', async (req, res) => {
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     console.log(req, "req.body")
-    const userId = req.body.user;
+    const userId = req.body.user.email;
     console.log('Received id', userId);
     if (!userId) {
       console.log({ message: strings['invalid User'] })
@@ -189,14 +189,16 @@ app.get('/getUsers', (req, res) => {
 
 app.post('/login', async (req, res) => {
   const email = req.body.loginusername;
+  const username = req.body.loginusername;
   const password = req.body.loginpassword;
 
-  console.log('Received login request:', { email, password });
+  // console.log('Received login request:', { email, password });
 
   try {
-    const user = await UserModel.findOne({ email: email.trim() });
-
-    console.log('User from database:', user);
+    const user = await UserModel.findOne({
+      $or: [{ email: email.trim() }, { username: username.trim() }]
+    });
+        // console.log('User from database:', user);
 
     if (!user) {
       console.log('User not found.');
@@ -210,7 +212,7 @@ app.post('/login', async (req, res) => {
       } else {
         console.log('Invalid password.');
         return res.status(401).json({ message: strings.invalidPassword });
-        
+
       }
     });
   } catch (error) {
