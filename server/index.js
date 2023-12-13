@@ -4,13 +4,17 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const UserModel = require('./models/users');
-const FileModel = require('./models/files')
+const FileModel = require('./models/files');
+const AuthTokenModel = require('./models/authtoken')
 const strings = require("../src/strings.json")
 const app = express();
+const bcrypt= require('bcrypt')
+const jwt = require('jsonwebtoken');
+
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
-const bcrypt= require('bcrypt')
+
 
 
 mongoose.connect('mongodb://localhost:27017/documents');
@@ -32,31 +36,24 @@ app.post('/Register', async (req, res) => {
   }
 
   try {
-    const existingUser = await UserModel.findOne({ email });
-
-    if (existingUser) {
-      const passwordMatch = await existingUser.comparePassword(password);
-
-      if (passwordMatch) {
-        return res.status(200).json({ message: strings.loginSuccess });
-      } else {
-        return res.status(401).json({ message: strings.loginError });
-      }
+    const existingUserByUsername = await UserModel.findOne({ username });
+    if (existingUserByUsername) {
+      return res.status(400).json({ message: strings.usernameTaken });
+    }
+    const existingUserByEmail = await UserModel.findOne({ email });
+    if (existingUserByEmail) {
+      return res.status(400).json({ message: strings.emailTaken });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('Hashed Password:', hashedPassword);
-
     const newUser = new UserModel({ username, email, password: hashedPassword });
     await newUser.save();
-
     res.status(201).json({ message: strings.registrationSuccess });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ message: strings.internalError });
   }
 });
-
 
 
 app.post('/upload', upload.single('file'), async (req, res) => {
@@ -106,7 +103,7 @@ app.put('/updateUser/:fileId', upload.single('file'), async (req, res) => {
 
 
 app.get('/files/:userId', async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.params.username
 
   try {
     const files = await FileModel.find({ userId });
@@ -187,18 +184,20 @@ app.get('/getUsers', (req, res) => {
 });
 
 
+
 app.post('/login', async (req, res) => {
   const email = req.body.loginusername;
   const username = req.body.loginusername;
   const password = req.body.loginpassword;
 
-  // console.log('Received login request:', { email, password });
+    // console.log('Received login request:', { email, password });
 
   try {
     const user = await UserModel.findOne({
       $or: [{ email: email.trim() }, { username: username.trim() }]
     });
-        // console.log('User from database:', user);
+
+            // console.log('User from database:', user);
 
     if (!user) {
       console.log('User not found.');
@@ -207,12 +206,17 @@ app.post('/login', async (req, res) => {
 
     bcrypt.compare(password, user.password, (err, passwordMatch) => {
       if (passwordMatch) {
+        const token = jwt.sign({ userId: user._id, email: user.email }, 'your-secret-key', { expiresIn: '1h' });
+
+        
+        const authToken = new AuthTokenModel({ userId: user._id, token });
+        authToken.save();
+
         console.log('Login successful.');
-        return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
+        return res.status(200).json({ userId: user._id, token, message: strings.loginSuccess });
       } else {
         console.log('Invalid password.');
         return res.status(401).json({ message: strings.invalidPassword });
-
       }
     });
   } catch (error) {

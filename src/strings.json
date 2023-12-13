@@ -9,5 +9,6 @@
     "fileNotFOund": "File Not Found",
     "fileDeletedSuccess": "File Deleted Succesfully",
     "usernotfound":"User Not Found",
-    "unknownFileType": "Unknown File Type"
+    "unknownFileType": "Unknown File Type",
+    "usernameTaken":"Username not available please try with new one"
   }
