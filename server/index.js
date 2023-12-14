@@ -216,12 +216,12 @@
 
       bcrypt.compare(password, user.password, (err, passwordMatch) => {
         if (passwordMatch) {
-          const token = jwt.sign({ userId: user._id, email: user.email }, 'your-secret-key', { expiresIn: '1h' });
+          const token = jwt.sign({ userId: user._id, username: username }, 'your-secret-key', { expiresIn: '1h' });
 
           // Set the authentication token as an HTTP cookie
           res.cookie('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9', token, { httpOnly: true });
           
-          const authToken = new AuthTokenModel({ userId: user._id, token });
+          const authToken = new AuthTokenModel({ userId: user._id, username: username, token });
           authToken.save();
 
           console.log('Login successful.');
