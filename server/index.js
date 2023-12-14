@@ -130,6 +130,20 @@
       res.status(500).send({ message: strings.internalError });
     }
   });
+  app.delete('/logout/:username', async (req, res) => {
+    try {
+      const username = req.params.username;
+      const result = await AuthTokenModel.deleteOne({ _id: username });
+      if (result.deletedCount === 0) {
+        return res.status(404).send({ message: strings.usernotfound });
+      }
+      res.status(200).send({ message: strings.fileDeletedSuccess });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: strings.internalError });
+    }
+  });
+  
 
   app.get('/download/:fileId', async (req, res) => {
     try {
@@ -186,10 +200,9 @@
 
 
   app.post('/login', async (req, res) => {
-    const email = req.body.loginemail;  
+    const email = req.body.loginusername;
     const username = req.body.loginusername;
     const password = req.body.loginpassword;
-
 
     try {
       const user = await UserModel.findOne({
