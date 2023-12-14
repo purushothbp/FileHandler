@@ -86,7 +86,7 @@ const Register = () => {
                     {formik.touched.firstname && formik.errors.firstname && (
                       <div className="invalid-feedback">{formik.errors.firstname}</div>
                     )}
-                    <CInputGroupText>
+                    <CInputGroupText className='lastname'>
                       <CIcon icon={cilUser} />
                       <FontAwesomeIcon icon={faUser} />
                     </CInputGroupText>

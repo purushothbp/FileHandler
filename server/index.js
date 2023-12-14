@@ -193,7 +193,7 @@
 
     try {
       const user = await UserModel.findOne({
-        $or: [{ email: email.trim() }, { username: username.trim() }]
+        $or: [{ email: email }, { username: username }]
       });
 
       if (!user) {
