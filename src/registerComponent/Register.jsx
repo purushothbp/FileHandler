@@ -34,6 +34,8 @@ const Register = () => {
 
   const formik = useFormik({
     initialValues: {
+      firstname:"",
+      laastname:"",
       username: "",
       email: "",
       password: "",
@@ -84,8 +86,6 @@ const Register = () => {
                     {formik.touched.firstname && formik.errors.firstname && (
                       <div className="invalid-feedback">{formik.errors.firstname}</div>
                     )}
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                       <FontAwesomeIcon icon={faUser} />

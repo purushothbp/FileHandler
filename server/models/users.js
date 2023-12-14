@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-// const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
+  
+  firstname:{type:String, required: true},
+  lastname:{ type:String, required: true},
   username: String,
-  firstname:{String, required: true},
-  lastname:{ String, required: true},
   email: { type: String, required: true },
   password: { type: String, required: true },
 
@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
-    // const passwordMatch = await bcrypt.compare(candidatePassword, this.password);
      return (candidatePassword === this.password) ? true : false
   } catch (error) {
     throw error;
