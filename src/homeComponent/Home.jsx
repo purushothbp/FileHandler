@@ -16,12 +16,44 @@ const Home = () => {
 
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
+        const maxSizeInBytes = 50 * 1024 * 1024; // 50MB
+        if (selectedFile.size > maxSizeInBytes) {
+            console.log('File size exceeds the allowed limit (50MB).');
+            return;
+        }
+    
+        // Check file resolution (for image files)
+        if (selectedFile.type.startsWith('image/')) {
+            const image = new Image();
+            image.src = URL.createObjectURL(selectedFile);
+    
+            // Assuming max resolution of 1024 x 1024
+            const maxResolution = { width: 1024, height: 1024 };
+    
+            return new Promise((resolve) => {
+                image.onload = () => {
+                    if (image.width > maxResolution.width || image.height > maxResolution.height) {
+                        console.log('Image resolution exceeds the allowed limit (1024 x 1024).');
+                    } else {
+                        // Proceed with file upload/update
+                        handleFileUpload(selectedFile);
+                    }
+                    resolve();
+                };
+            });
+        } else {
+            // Proceed with file upload/update for non-image files
+            handleFileUpload(selectedFile);
+        }
+    };
+
+    const handleFileUpload = async (file) => {
         try {
             if (editingFile) {
-                await updateFile(editingFile._id, selectedFile);
+                await updateFile(editingFile._id, file);
                 setEditingFile(null);
             } else {
-                await uploadFile(selectedFile);
+                await uploadFile(file);
             }
             console.log('File operation completed successfully');
             fetchData();
@@ -29,7 +61,8 @@ const Home = () => {
             console.log('Error during file operation', error);
         }
     };
-
+    
+    
     const fetchData = async () => {
         try {
             const data = await fetchFiles();
@@ -76,7 +109,6 @@ const Home = () => {
                 <tbody>
                     {dataList.map((val, index) => (
                         <tr key={val._id}>
-                            {/* {console.log(val,"val data")} */}
                             <td>{index + 1}</td>
                             <td>{val.filename}</td>
                             <td> <button className="btn btn-outline-success" onClick={() => editFile(val)}><FontAwesomeIcon icon={faEdit} /> Edit</button></td>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiUrl = process.env.REACT_APP_BASE_API_URL;
-console.log(apiUrl)
+
 
 export const fetchFiles = async () => {
     const userId = localStorage.getItem('userlogin');

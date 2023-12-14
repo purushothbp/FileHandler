@@ -10,17 +10,17 @@ import { useEffect, useState } from 'react';
 function App() {
   const [isLoggedIn, setLogin] = useState(false);
 
-  const checkLogin = () => {
-    const data = localStorage.getItem('userlogin');
-    console.log(data,"userdata")
-    if (data !== null || data !== '') {
-      setLogin(true);
-    }
-  }
+  // const checkLogin = () => {
+  //   const data = localStorage.getItem('userlogin');
+  //   console.log(data,"userdata")
+  //   if (data !== null || data !== '') {
+  //     setLogin(true);
+  //   }
+  // }
 
-  useEffect(() => {
-    checkLogin();
-  }, [])
+  // useEffect(() => {
+  //   checkLogin();
+  // }, [])
 
   return (
     <div>

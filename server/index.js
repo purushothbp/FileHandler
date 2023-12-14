@@ -29,7 +29,7 @@ const upload = multer({
 
 
 app.post('/Register', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { firstname,lastname,username, email, password } = req.body;
 
   if (username.length > 10 || password.length > 10) {
     return res.status(400).json({ message: strings.invalidLength });
@@ -46,7 +46,7 @@ app.post('/Register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new UserModel({ username, email, password: hashedPassword });
+    const newUser = new UserModel({firstname,lastname, username, email, password: hashedPassword });
     await newUser.save();
     res.status(201).json({ message: strings.registrationSuccess });
   } catch (error) {
@@ -186,18 +186,15 @@ app.get('/getUsers', (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-  const email = req.body.loginusername;
+  const email = req.body.loginemail;  
   const username = req.body.loginusername;
   const password = req.body.loginpassword;
 
-    // console.log('Received login request:', { email, password });
 
   try {
     const user = await UserModel.findOne({
       $or: [{ email: email.trim() }, { username: username.trim() }]
     });
-
-            // console.log('User from database:', user);
 
     if (!user) {
       console.log('User not found.');
@@ -208,12 +205,14 @@ app.post('/login', async (req, res) => {
       if (passwordMatch) {
         const token = jwt.sign({ userId: user._id, email: user.email }, 'your-secret-key', { expiresIn: '1h' });
 
+        // Set the authentication token as an HTTP cookie
+        res.cookie('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9', token, { httpOnly: true });
         
         const authToken = new AuthTokenModel({ userId: user._id, token });
         authToken.save();
 
         console.log('Login successful.');
-        return res.status(200).json({ userId: user._id, token, message: strings.loginSuccess });
+        return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
       } else {
         console.log('Invalid password.');
         return res.status(401).json({ message: strings.invalidPassword });
@@ -224,10 +223,6 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: strings.internalError });
   }
 });
-
-
-
-
 
 
 

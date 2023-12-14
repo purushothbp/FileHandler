@@ -3,8 +3,11 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   username: String,
+  firstname:{String, required: true},
+  lastname:{ String, required: true},
   email: { type: String, required: true },
   password: { type: String, required: true },
+
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {

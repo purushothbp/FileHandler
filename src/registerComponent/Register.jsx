@@ -49,10 +49,10 @@ const Register = () => {
         })
         .catch((error) => {
           console.log("error", error);
-          
+
         });
 
-      
+
     },
     validate: registerformvalidateion
   });
@@ -67,6 +67,42 @@ const Register = () => {
                 <CForm onSubmit={formik.handleSubmit}>
                   <h1>Register</h1>
                   <p className="text-medium-emphasis">Create your account</p>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>
+                      <CIcon icon={cilUser} />
+                      <FontAwesomeIcon icon={faUser} />
+                    </CInputGroupText>
+                    <CFormInput
+                      placeholder="firstname"
+                      autoComplete="firstname"
+                      name="firstname"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.firstname}
+                      className={formik.touched.firstname && formik.errors.firstname ? 'is-invalid' : ''}
+                    />
+                    {formik.touched.firstname && formik.errors.firstname && (
+                      <div className="invalid-feedback">{formik.errors.firstname}</div>
+                    )}
+                  </CInputGroup>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>
+                      <CIcon icon={cilUser} />
+                      <FontAwesomeIcon icon={faUser} />
+                    </CInputGroupText>
+                    <CFormInput
+                      placeholder="lastname"
+                      autoComplete="lastname"
+                      name="lastname"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.lastname}
+                      className={formik.touched.lastname && formik.errors.lastname ? 'is-invalid' : ''}
+                    />
+                    {formik.touched.lastname && formik.errors.lastname && (
+                      <div className="invalid-feedback">{formik.errors.lastname}</div>
+                    )}
+                  </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />

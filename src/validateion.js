@@ -1,7 +1,14 @@
 export const registerformvalidateion = (values) => {
 
     const errors = {};
-  
+
+   if (!values.firstname) {
+      errors.firstname = "firstname name is required"
+    }
+    if (!values.lastname) {
+        errors.lastname = "lastname name is required"
+      }
+    
     if (!values.username) {
       errors.username = "user name is required"
     }
