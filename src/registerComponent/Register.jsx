@@ -69,7 +69,7 @@ const Register = () => {
                 <CForm onSubmit={formik.handleSubmit}>
                   <h1>Register</h1>
                   <p className="text-medium-emphasis">Create your account</p>
-                  <CInputGroup className="mb-3">
+                  <CInputGroup className="mb-3 rounded">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                       <FontAwesomeIcon icon={faUser} />
@@ -86,6 +86,7 @@ const Register = () => {
                     {formik.touched.firstname && formik.errors.firstname && (
                       <div className="invalid-feedback">{formik.errors.firstname}</div>
                     )}
+                    <div className="px-2"></div>
                     <CInputGroupText className='lastname'>
                       <CIcon icon={cilUser} />
                       <FontAwesomeIcon icon={faUser} />
