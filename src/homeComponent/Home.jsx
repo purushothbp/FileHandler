@@ -2,8 +2,7 @@ import './Home.css';
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faEdit, faDownload, faTrash, faRightToBracket } from '@fortawesome/free-solid-svg-icons'
-import { deleteFile,  fetchFiles, updateFile, uploadFile } from '../services';
-import {  useNavigate } from 'react-router-dom';
+import { deleteFile,  fetchFiles, updateFile, uploadFile, logoutUser } from '../services';
 
 
 
@@ -94,11 +93,22 @@ const Home = () => {
         }
     };
 
+    const userLogOut = async () => {
+        console.log("working")
+        try{
+            const logout = await logoutUser()
+            console.log(logout)
+            
+        } catch(error) {
+            console.log(error)
+        }
+    }
+
     return (
         <div className='bg-colour' >
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".doc, .docx, .pdf, .xlsx, .jpg, .jpeg, .png" onChange={handleFileChange} />
             <button type="button" onClick={handleButtonClick} className="btn btn-primary mx-5 mt-1"><FontAwesomeIcon icon={faUpload} />Upload</button>
-             <button type="button"  className="btn btn-primary mt-1 buttonstyle"><FontAwesomeIcon icon={faRightToBracket} />Logout</button>    
+             <button type="button"  className="btn btn-primary mt-1 buttonstyle" onClick={userLogOut}><FontAwesomeIcon icon={faRightToBracket} />Logout</button>    
             <table className='tablestyle'>
                 <thead>
                     <tr>

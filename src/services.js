@@ -58,10 +58,21 @@ export const downloadFile = (fileId) => {
 
 export const fetchUserData = async () => {
     try {
-        const response = await axios.get(`${apiUrl}/users`);
+        const response = await axios.get(`${apiUrl}/getUsers`);
         return response.data;
     } catch (error) {
         console.error('Error fetching user data:', error);
         throw error;
     }
 };
+
+export const logoutUser = async() => {
+    const logedUserName = localStorage.getItem("userlogin")
+    console.log(logedUserName,"username")
+    try{
+        const deletestatus = await axios.delete(`${apiUrl}/logout/${logedUserName}`)
+        console.log(deletestatus)
+    } catch(error) {
+        throw error
+    }
+}
