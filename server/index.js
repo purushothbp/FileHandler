@@ -132,7 +132,7 @@
   });
   app.delete('/logout/:username', async (req, res) => {
     try {
-      const username = req.params.username;
+      const username = req.body.username;
       const result = await AuthTokenModel.deleteOne({ _id: username });
       if (result.deletedCount === 0) {
         return res.status(404).send({ message: strings.usernotfound });
