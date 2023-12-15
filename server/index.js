@@ -131,6 +131,7 @@
     }
   });
   app.delete('/logout/:username', async (req, res) => {
+    console.log(req.params.username,"requestdata")
     try {
       const username = req.params.username;
       const result = await AuthTokenModel.deleteOne({ username: username });
@@ -188,6 +189,8 @@
         return null;
     }
   }
+
+
   app.get('/getUsers', (req, res) => {
     UserModel.find()
       .then(users => {

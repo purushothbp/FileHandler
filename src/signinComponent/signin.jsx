@@ -21,7 +21,7 @@ import {
   CRow,
 
 } from '@coreui/react';
-import { useFormik} from 'formik';
+import { useFormik } from 'formik';
 import { singinValidation } from '../validateion';
 
 <CInputGroupText>
@@ -35,7 +35,7 @@ const Signin = () => {
   const nave = useNavigate();
 
   const [logindata, setLoginData] = useState({})
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,9 +90,9 @@ const Signin = () => {
             },
             body: JSON.stringify(values),
           });
-    
+
           const data = await response.json();
-    
+
           if (response.ok) {
             // Login successful
             localStorage.setItem('userlogin', values.loginusername);
@@ -107,7 +107,7 @@ const Signin = () => {
           console.error('Error logging in:', error);
         }
       },
-      validate:singinValidation
+      validate: singinValidation
     })
 
   return (
@@ -125,17 +125,17 @@ const Signin = () => {
                       <CInputGroupText>
                         <FontAwesomeIcon icon={faUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username or email" autoComplete="username" 
-                      name='loginusername' onChange={loginCredential.handleChange}
-                      onBlur={loginCredential.handleBlur}
-                      value={loginCredential.values.loginusername}
-                      className={loginCredential.touched.loginusername && loginCredential.errors.loginusername ? 'is-invalid' : ''}
+                      <CFormInput placeholder="Username or email" autoComplete="username"
+                        name='loginusername' onChange={loginCredential.handleChange}
+                        onBlur={loginCredential.handleBlur}
+                        value={loginCredential.values.loginusername}
+                        className={loginCredential.touched.loginusername && loginCredential.errors.loginusername ? 'is-invalid' : ''}
                       />
                       {loginCredential.touched.loginusername && loginCredential.errors.loginusername && (
-                      <div className="invalid-feedback">{loginCredential.errors.loginusername}</div>
-                    )}
+                        <div className="invalid-feedback">{loginCredential.errors.loginusername}</div>
+                      )}
                     </CInputGroup>
-                    
+
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
                         <FontAwesomeIcon icon={faLock} />
@@ -148,12 +148,12 @@ const Signin = () => {
                         onBlur={loginCredential.handleBlur}
                         value={loginCredential.values.loginpassword}
                         autoComplete="current-password"
-                      className={loginCredential.touched.loginpassword && loginCredential.errors.loginpassword ? 'is-invalid' : ''}
+                        className={loginCredential.touched.loginpassword && loginCredential.errors.loginpassword ? 'is-invalid' : ''}
 
                       />
                       {loginCredential.touched.loginpassword && loginCredential.errors.loginpassword && (
-                      <div className="invalid-feedback">{loginCredential.errors.loginpassword}</div>
-                    )}
+                        <div className="invalid-feedback">{loginCredential.errors.loginpassword}</div>
+                      )}
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
