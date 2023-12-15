@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faEdit, faDownload, faTrash, faRightToBracket } from '@fortawesome/free-solid-svg-icons'
 import { deleteFile,  fetchFiles, updateFile, uploadFile, logoutUser } from '../services';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -11,7 +11,7 @@ const Home = () => {
     const [dataList, setDataList] = useState([]);
     const [editingFile, setEditingFile] = useState(null);
     const fileInputRef = React.createRef();
-
+    const redirectToSigin =useNavigate()
     const handleButtonClick = () => {
         fileInputRef.current.click();
     };
@@ -99,7 +99,8 @@ const Home = () => {
         try{
             const logout = await logoutUser()
             console.log(logout)
-            
+            redirectToSigin("../")
+
         } catch(error) {
             console.log(error)
         }
