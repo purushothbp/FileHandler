@@ -51,8 +51,15 @@ const Signin = () => {
 
 
   const handleLoginSuccess = (credentialResponse) => {
-    var decode = jwtDecode(credentialResponse.credential);
+    const decode = jwtDecode(credentialResponse.credential);
     console.log('Hello', decode.name, 'welcome');
+
+    // Extracting first name and last name 
+    const firstName = decode.given_name;
+    const lastName = decode.family_name;
+
+    console.log('First Name:', firstName);
+    console.log('Last Name:', lastName);
     setIsAuthenticated(true);
   };
 

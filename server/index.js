@@ -132,7 +132,6 @@
   });
   
   app.delete('/logout/:username', async (req, res) => {
-    console.log(req.params.username,"requestdata")
     try {
       const username = req.params.username;
       const result = await AuthTokenModel.deleteOne({ username: username });
@@ -140,12 +139,14 @@
         return res.status(404).send({ message: strings.usernotfound });
       }
       res.status(200).send({ message: strings.fileDeletedSuccess });
-      res.redirect('/')
+      // OR, if you want to redirect:
+      // res.redirect('/');
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: strings.internalError });
     }
   });
+  
   
 
   
@@ -223,7 +224,7 @@
 
       bcrypt.compare(password, user.password, (err, passwordMatch) => {
         if (passwordMatch) {
-          const token = jwt.sign({ userId: user._id, username: username }, 'your-secret-key', { expiresIn: '1h' });
+          const token = jwt.sign({ userId: user._id, username: username }, 'your-secret-key');
 
           // Set the authentication token as an HTTP cookie
           res.cookie('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9', token, { httpOnly: true });
