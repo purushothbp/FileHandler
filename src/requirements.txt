@@ -86,7 +86,18 @@ Final delivery
         - if match is found, the authorization is successful otherwise failed
 
 
-
-
         password need to be encrypted and comparing;
         need to include fName and LName on username;
+
+including api and unit tests in code
+Cloudfront + ALB + Target group + EKS(using cloud firm)
+
+Containerize the UI, backend code
+(dockerize)
+Include rules in ALB so that the ALB shall direct UI calls to react app & backend calls to Node JS middleware.
+Pattern:
+/ => react app
+/api => Node Js middleware
+Storage  => S3 bucket
+
+S3 Bucket(application name) > Folder(userid) > storage their files

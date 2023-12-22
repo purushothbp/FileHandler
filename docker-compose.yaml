@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  # Backend service
+  backend:
+    build:
+      context: ./server
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./src
+    ports:
+      - "3000:3000"
+    tty: true
+    depends_on:
+      - backend
+
+  # MongoDB service
+  mongo:
+    image: "mongo:latest"
+    ports:
+      - "27017:27017"

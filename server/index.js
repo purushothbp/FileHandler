@@ -17,7 +17,7 @@
 
 
 
-  mongoose.connect('mongodb://localhost:27017/documents');
+  mongoose.connect('mongodb://localhost:27017/new-docker-db');
 
 
   const storage = multer.memoryStorage();
@@ -29,12 +29,12 @@
 
 
   app.post('/Register', async (req, res) => {
-    const { firstname,lastname,username, email, password } = req.body;
-
+    const { firstname, lastname, username, email, password } = req.body;
+  
     if (username.length > 10 || password.length > 10) {
       return res.status(400).json({ message: strings.invalidLength });
     }
-
+  
     try {
       const existingUserByUsername = await UserModel.findOne({ username });
       if (existingUserByUsername) {
@@ -44,9 +44,9 @@
       if (existingUserByEmail) {
         return res.status(400).json({ message: strings.emailTaken });
       }
-
+  
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new UserModel({firstname,lastname, username, email, password: hashedPassword });
+      const newUser = new UserModel({ firstname, lastname, username, email, password: hashedPassword });
       await newUser.save();
       res.status(201).json({ message: strings.registrationSuccess });
     } catch (error) {
@@ -54,6 +54,7 @@
       res.status(500).json({ message: strings.internalError });
     }
   });
+  
 
 
   app.post('/upload', upload.single('file'), async (req, res) => {
@@ -210,40 +211,65 @@
   app.post('/login', async (req, res) => {
     const email = req.body.loginusername;
     const username = req.body.loginusername;
-    const password = req.body.loginpassword;
-
+  
+    // Check if it's a Google login
+    const isGoogleLogin = req.body.isGoogleLogin;
+  
     try {
-      const user = await UserModel.findOne({
-        $or: [{ email: email }, { username: username }]
-      });
-
-      if (!user) {
-        console.log('User not found.');
-        return res.status(401).json({ message: strings.loginError });
-      }
-
-      bcrypt.compare(password, user.password, (err, passwordMatch) => {
-        if (passwordMatch) {
-          const token = jwt.sign({ userId: user._id, username: username }, 'your-secret-key');
-
-          // Set the authentication token as an HTTP cookie
-          res.cookie('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9', token, { httpOnly: true });
-          
-          const authToken = new AuthTokenModel({ userId: user._id, username: username, token });
-          authToken.save();
-
-          console.log('Login successful.');
-          return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
+      let user;
+  
+      if (isGoogleLogin) {
+        // Extract first name and last name for Google login
+        const firstName = req.body.firstname;
+        const lastName = req.body.lastname;
+  
+        // Check if the user exists by email
+        user = await UserModel.findOne({ email: email });
+  
+        if (!user) {
+          // If the user doesn't exist, create a new user with the provided information
+          user = new UserModel({
+            email: email,
+            username: username, // You may want to set the username based on your requirements
+            firstName: firstName,
+            lastName: lastName
+            // Add other necessary fields
+          });
+          await user.save();
         } else {
-          console.log('Invalid password.');
-          return res.status(401).json({ message: strings.invalidPassword });
+          // If the user exists, update the first name and last name
+          user.firstName = firstName;
+          user.lastName = lastName;
+          await user.save();
         }
-      });
+      } else {
+        // Regular login (no password check for Google login)
+        user = await UserModel.findOne({ email: email });
+  
+        if (!user) {
+          console.log('User not found.');
+          return res.status(401).json({ message: strings.loginError });
+        }
+      }
+  
+      const token = jwt.sign({ userId: user._id, username: user.username }, 'your-secret-key');
+  
+      // Set the authentication token as an HTTP cookie
+      res.cookie('access_token', token, { httpOnly: true });
+  
+      const authToken = new AuthTokenModel({ userId: user._id, username: user.username, token });
+      authToken.save();
+  
+      console.log('Login successful.');
+      return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
     } catch (error) {
       console.error('Error logging in user:', error);
       res.status(500).json({ message: strings.internalError });
     }
   });
+  
+  
+
 
 
 
