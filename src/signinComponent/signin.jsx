@@ -71,8 +71,44 @@ const Signin = () => {
 
     localStorage.setItem('userlogin', decode.email);
     console.log('Login success');
+    
+    // Extracting first name and last name
+    const firstName = decode.given_name;
+    const lastName = decode.family_name;
+
+    console.log('First Name:', firstName);
+    console.log('Last Name:', lastName);
+
+    // Update loginCredential values with first name and last name
+    loginCredential.setValues({
+        ...loginCredential.values,
+        firstname: firstName,
+        lastname: lastName
+    });
+
+    fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            loginusername: decode.email,
+            isGoogleLogin: true,
+            firstname: firstName,
+            lastname: lastName
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Server Response:', data);
+    })
+    .catch(error => {
+        console.error('Error logging in:', error);
+    });
+
     setIsAuthenticated(true);
-  };
+};
+
 
   const handleLoginFailure = () => {
     console.log('Login Failed');
@@ -95,7 +131,9 @@ const Signin = () => {
     {
       initialValues: {
         loginusername: '',
-        loginpassword: ''
+        loginpassword: '',
+        firstname:'',
+        lastName:''
 
       },
 
