@@ -17,7 +17,7 @@
 
 
 
-  mongoose.connect('mongodb://localhost:27017/new-docker-db');
+  mongoose.connect('mongodb://localhost:27017/documents');
 
 
   const storage = multer.memoryStorage();
@@ -28,34 +28,45 @@
 
 
 
-  app.post('/Register', async (req, res) => {console.log(req,"register req")
+  app.post('/Register', async (req, res) => {
+    console.log(req, "register req");
 
-    const { firstname,lastname,username, email, password } = req.body;
+    const { firstname, lastname, username, email, password } = req.body;
 
-    if (username.length >  25 || password.length > 10) {
+    if (username && password && (username.length > 25 || password.length > 10)) {
       return res.status(400).json({ message: strings.invalidLength });
     }
-  
+
     try {
-      const existingUserByUsername = await UserModel.findOne({ username });
-      if (existingUserByUsername) {
-        return res.status(400).json({ message: strings.usernameTaken });
-      }
-      const existingUserByEmail = await UserModel.findOne({ email });
-      if (existingUserByEmail) {
-        return res.status(400).json({ message: strings.emailTaken });
-      }
-  
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new UserModel({ firstname, lastname, username, email, password: hashedPassword });
-      await newUser.save();
-      res.status(201).json({ message: strings.registrationSuccess });
+        let existingUser;
+        
+        if (req.body.isGoogleLogin) {
+            existingUser = await UserModel.findOne({ email: email });
+        } else {
+            existingUser = await UserModel.findOne({ $or: [{ username }, { email }] });
+        }
+
+        if (existingUser) {
+            return res.status(400).json({ message: strings.userExists });
+        }
+
+        const newUser = new UserModel({
+            firstname,
+            lastname,
+            email,
+            username,
+            password,
+            ...(req.body.isGoogleLogin ? {username, password: await bcrypt.hash(password, 10),email} : { username, firstname,lastname }),
+        });
+
+        await newUser.save();
+        res.status(201).json({ message: strings.registrationSuccess });
     } catch (error) {
-      console.error('Error registering user:', error);
-      res.status(500).json({ message: strings.internalError });
+        console.error('Error registering user:', error);
+        res.status(500).json({ message: strings.internalError });
     }
-  });
-  
+});
+
 
 
   app.post('/upload', upload.single('file'), async (req, res) => {
@@ -149,11 +160,7 @@
       console.error(error);
       res.status(500).send({ message: strings.internalError });
     }
-  });
-  
-  
-
-  
+  });  
 
   app.get('/download/:fileId', async (req, res) => {
     try {
@@ -222,31 +229,28 @@
       let user;
   
       if (isGoogleLogin) {
-        // Extract first name and last name for Google login
         const firstName = req.body.firstname;
         const lastName = req.body.lastname;
   
-        // Check if the user exists by email
         user = await UserModel.findOne({ email: email });
   
         if (!user) {
-          // If the user doesn't exist, create a new user with the provided information
           user = new UserModel({
             email: email,
-            username: username, // You may want to set the username based on your requirements
+            username: username, 
             firstName: firstName,
             lastName: lastName
-            // Add other necessary fields
           });
           await user.save();
         } else {
-          // If the user exists, update the first name and last name
-          user.firstName = firstName;
-          user.lastName = lastName;
+          user = new UserModel({
+            firstName :firstName,
+            lastName :lastName,
+            email:email,
+          })
           await user.save();
         }
       } else {
-        // Regular login (no password check for Google login)
         user = await UserModel.findOne({ email: email });
   
         if (!user) {
@@ -257,7 +261,6 @@
   
       const token = jwt.sign({ userId: user._id, username: user.username }, 'your-secret-key');
   
-      // Set the authentication token as an HTTP cookie
       res.cookie('access_token', token, { httpOnly: true });
   
       const authToken = new AuthTokenModel({ userId: user._id, username: user.username, token });

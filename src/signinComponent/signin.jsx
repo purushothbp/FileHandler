@@ -57,7 +57,7 @@ const Signin = () => {
     var decode = jwtDecode(credentialResponse.credential);
     console.log(decode, "decode values")
     console.log('Hello', decode.name, 'welcome');
-    const googleLogindetails = { firstname: decode.given_name, lastname: decode.family_name, email: decode.email, username: decode.name }
+    const googleLogindetails = { firstname: decode.given_name, lastname: decode.family_name, email: decode.email}
 
     axios.post(`${apiUrl}/Register`, googleLogindetails)
       .then((res) => {
@@ -75,9 +75,6 @@ const Signin = () => {
     // Extracting first name and last name
     const firstName = decode.given_name;
     const lastName = decode.family_name;
-
-    console.log('First Name:', firstName);
-    console.log('Last Name:', lastName);
 
     // Update loginCredential values with first name and last name
     loginCredential.setValues({
@@ -220,7 +217,7 @@ const Signin = () => {
                       <CCol>
                         <div>
                           <Link to="/register">
-                            <CButton color="link" className="mt-3 register">
+                            <CButton color="primary" className="mt-3 register">
                               Register Now!
                             </CButton>
                           </Link>
