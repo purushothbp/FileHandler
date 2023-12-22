@@ -30,11 +30,11 @@ export const registerformvalidateion = (values) => {
     const errors = {};
 
     if(!values.loginusername){
-        errors.loginusername = "required"
+        errors.loginusername = "userName or email is required"
     }
 
     if(!values.loginpassword){
-        errors.loginpassword = "required"
+        errors.loginpassword = "password is required"
     }
 
     return errors

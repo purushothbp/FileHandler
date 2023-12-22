@@ -35,16 +35,16 @@ const Register = () => {
   const formik = useFormik({
     initialValues: {
       firstname:"",
-      laastname:"",
+      lastname:"",
       username: "",
       email: "",
       password: "",
       reenterpassword: "",
     },
     onSubmit: (values) => {
-      console.log(values);
+      console.log(values,"submitedvalues");
 
-      axios.post(`${apiUrl}/register`, values)
+      axios.post(`${apiUrl}/Register`, values)
         .then((res) => {
           console.log("success", res);
           redirect("../");
@@ -67,8 +67,8 @@ const Register = () => {
             <CCard className="mx-4">
               <CCardBody className="p-4">
                 <CForm onSubmit={formik.handleSubmit}>
-                  <h1>Register</h1>
-                  <p className="text-medium-emphasis">Create your account</p>
+                  <h1>Register Form</h1>
+                  <p className="text-medium-emphasis">Create Your Newaccount </p>
                   <CInputGroup className="mb-3 rounded">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />

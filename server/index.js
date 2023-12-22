@@ -28,10 +28,11 @@
 
 
 
-  app.post('/Register', async (req, res) => {
+  app.post('/Register', async (req, res) => {console.log(req,"register req")
+
     const { firstname,lastname,username, email, password } = req.body;
 
-    if (username.length > 10 || password.length > 10) {
+    if (username.length >  25 || password.length > 10) {
       return res.status(400).json({ message: strings.invalidLength });
     }
 
@@ -59,7 +60,7 @@
   app.post('/upload', upload.single('file'), async (req, res) => {
     try {
       console.log(req, "req.body")
-      const userId = req.body.user.email;
+      const userId = req.body.user;
       console.log('Received id', userId);
       if (!userId) {
         console.log({ message: strings['invalid User'] })
@@ -103,7 +104,9 @@
 
 
   app.get('/files/:userId', async (req, res) => {
-    const userId = req.params.username
+    console.log(req,"getrequest")
+    const userId = req.params.userId
+    console.log(userId,"userIdinget")
 
     try {
       const files = await FileModel.find({ userId });

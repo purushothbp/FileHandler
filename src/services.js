@@ -5,8 +5,10 @@ const apiUrl = process.env.REACT_APP_BASE_API_URL;
 
 export const fetchFiles = async () => {
     const userId = localStorage.getItem('userlogin');
+    console.log(userId,"userId")
     try {
         const responseFiles = await axios.get(`${apiUrl}/files/${userId}`);
+        console.log(responseFiles.data,"getfiles")
         return responseFiles.data;
     } catch (error) {
         console.log(error);

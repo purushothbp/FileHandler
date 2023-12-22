@@ -23,6 +23,7 @@ import {
 } from '@coreui/react';
 import { useFormik } from 'formik';
 import { singinValidation } from '../validateion';
+import axios from 'axios';
 
 <CInputGroupText>
   <FontAwesomeIcon icon={faUser} />
@@ -33,6 +34,8 @@ import { singinValidation } from '../validateion';
 const Signin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const nave = useNavigate();
+  const apiUrl = "http://localhost:3001";
+
 
   const [logindata, setLoginData] = useState({})
 
@@ -52,7 +55,22 @@ const Signin = () => {
 
   const handleLoginSuccess = (credentialResponse) => {
     var decode = jwtDecode(credentialResponse.credential);
+    console.log(decode, "decode values")
     console.log('Hello', decode.name, 'welcome');
+    const googleLogindetails = { firstname: decode.given_name, lastname: decode.family_name, email: decode.email, username: decode.name }
+
+    axios.post(`${apiUrl}/Register`, googleLogindetails)
+      .then((res) => {
+        console.log("success", res);
+        nave("../");
+      })
+      .catch((error) => {
+        console.log("error", error);
+
+      });
+
+    localStorage.setItem('userlogin', decode.email);
+    console.log('Login success');
     setIsAuthenticated(true);
   };
 
@@ -125,7 +143,7 @@ const Signin = () => {
                       <CInputGroupText>
                         <FontAwesomeIcon icon={faUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username or email" autoComplete="username"
+                      <CFormInput placeholder="UserName or Email" autoComplete="username"
                         name='loginusername' onChange={loginCredential.handleChange}
                         onBlur={loginCredential.handleBlur}
                         value={loginCredential.values.loginusername}
@@ -164,7 +182,7 @@ const Signin = () => {
                       <CCol>
                         <div>
                           <Link to="/register">
-                            <CButton color="primary" className="mt-3">
+                            <CButton color="link" className="mt-3 register">
                               Register Now!
                             </CButton>
                           </Link>
@@ -183,7 +201,7 @@ const Signin = () => {
                         ) : null}
                       </CCol>
                       <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
+                        <CButton color="link" className="registers">
                           Forgot password?
                         </CButton>
                       </CCol>
