@@ -1,0 +1,10 @@
+.background{
+    background: linear-gradient(-135deg, #3895d3, #a714a2);
+}
+.bg-light{
+    background: linear-gradient(-135deg, #3895d3, #a714a2);
+}
+.text-color{
+    text-decoration-color:#a714a2;
+}
+
