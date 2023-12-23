@@ -2,19 +2,19 @@
 FROM node:14
 
 # Change the working directory on the Docker image to /app
-WORKDIR /filehandler
+WORKDIR /app
 
 # Copy package.json and package-lock.json to the /app directory
-COPY package.json .
+COPY ./package.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy the rest of project files into this image
-COPY . .
+COPY ./ ./
 
 # Expose application port
 EXPOSE 3001
 
 # Start the application
-CMD npm start
+CMD ["npm", "start"]
