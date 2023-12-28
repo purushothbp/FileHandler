@@ -2,26 +2,37 @@ version: '3'
 
 services:
   # Backend service
-  backend:
+  backendnode:
     build:
-      context: ./filehandler-backend
+      context: ./backend
     ports:
       - "3001:3001"
     depends_on:
-      - mongo
+      - mongonode
 
   # Frontend service
   frontend:
     build:
-      context: ./src
+      context: ./frontend
     ports:
       - "3000:3000"
     tty: true
     depends_on:
-      - backend
+      - backendnode
 
   # MongoDB service
-  mongo:
+  mongonode:
     image: "mongo:latest"
     ports:
-      - "27018:27018"
+      - "27018:27017"
+
+
+
+
+
+
+
+
+
+
+

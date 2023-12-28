@@ -1,28 +1,33 @@
 {
-  "name": "filehandler-backend",
-  "version": "1.0.0",
-  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
-  "main": "./src/index.js",
+  "name": "backend",
+  "version": "0.0.0",
+  "private": true,
+  "main": "node ",
   "scripts": {
-    "start": "node ./src/index.js",
+    "start": "node ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "bcrypt": "^5.1.1",
     "aws-sdk": "^2.1524.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "express": "^4.18.2",
     "fs": "^0.0.1-security",
+    "http-errors": "~1.6.3",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "mongoose": "^8.0.3",
+    "morgan": "~1.9.1",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.0.2",
     "nvm": "^0.0.4",
-    "path": "^0.12.7"   
+    "path": "^0.12.7",
+    "pug": "2.0.0-beta11"
   }
 }

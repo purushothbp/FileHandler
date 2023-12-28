@@ -1,11 +1,11 @@
 # Use Node 16 alpine as parent image
-FROM node:14
+FROM node:20.3.1
 
 # Change the working directory on the Docker image to /app
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the /app directory
-COPY ./package.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
