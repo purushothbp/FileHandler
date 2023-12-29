@@ -217,7 +217,7 @@ const Signin = () => {
                       <CCol>
                         <div>
                           <Link to="/register">
-                            <CButton color="primary" className="mt-3 register">
+                            <CButton color="primary" className="register">
                               Register Now!
                             </CButton>
                           </Link>

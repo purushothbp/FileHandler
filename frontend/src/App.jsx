@@ -2,9 +2,9 @@
 import { Route, Routes,  BrowserRouter } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import signin from './signinComponent/signin';
-import Home from './homeComponent/Home';
-import Register from './registerComponent/Register';
+import signin from "./components/signinComponent/signin";
+import Home from './components/homeComponent/Home';
+import Register from './components/registerComponent/Register';
 
 function App() {
 
