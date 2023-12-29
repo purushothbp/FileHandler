@@ -1,5 +1,5 @@
-# Use Node 16 alpine as parent image
-FROM node:14
+# Use Node 16 alpine as parent image 
+FROM node:14.0.0
 
 # Change the working directory on the Docker image to /app
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN npm install
 COPY ./ ./
 
 # Expose application port
-EXPOSE 3001
+# EXPOSE 3001
 
 # Start the application
 CMD ["npm", "start"]
