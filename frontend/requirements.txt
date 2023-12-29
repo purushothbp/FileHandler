@@ -101,3 +101,6 @@ Pattern:
 Storage  => S3 bucket
 
 S3 Bucket(application name) > Folder(userid) > storage their files
+
+27-12-23:
+need to align items in proper project structure format

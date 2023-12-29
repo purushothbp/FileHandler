@@ -1,15 +1,18 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const UserModel = require('./models/users');
-const FileModel = require('./models/files');
-const AuthTokenModel = require('./models/authtoken')
+const UserModel = require('../models/users');
+const FileModel = require('../models/files');
+const AuthTokenModel = require('../models/authtoken')
 const strings = require("../strings.json")
 const app = express();
 const bcrypt= require('bcrypt')
 const jwt = require('jsonwebtoken');
+const aws = require('aws-sdk');
+const { v4: uuidv4 } = require('uuid'); 
 
 app.use(cors());
 app.use(express.json())
@@ -17,72 +20,89 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-mongoose.connect('mongodb://localhost:27017/documents');
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 
 const storage = multer.memoryStorage();
-
 const upload = multer({
   storage: storage
 })
 
-app.get('/',async(req,res)=>{
-   res.send("hello user");
-})
+const s3 = new aws.S3({
+  accessKeyId : process.env.S3_ACCESS_KEY,
+  secretAccessKey:process.env.S3_SECRET_ACCESS_KEY,
+  region: process.env.S3_BUCKET_REGION
+});
+
+
 
 app.post('/Register', async (req, res) => {
-  console.log(req, "register req");
+  console.log(req.body, "register req");
 
-  const { firstname, lastname, username, email, password } = req.body;
+  const { firstname, lastname, username, email, password, isGoogleLogin } = req.body;
 
   if (username && password && (username.length > 25 || password.length > 10)) {
     return res.status(400).json({ message: strings.invalidLength });
   }
 
   try {
-      let existingUser;
-      
-      if (req.body.isGoogleLogin) {
-          existingUser = await UserModel.findOne({ email: email });
-      } else {
-          existingUser = await UserModel.findOne({ $or: [{ username }, { email }] });
-      }
+    let existingUser = await UserModel.findOne({ email: email });
 
-      if (existingUser) {
-          return res.status(400).json({ message: strings.userExists });
-      }
+    if (existingUser) {
+      return res.status(400).json({ message: strings.userExists });
+    }
 
+    if (isGoogleLogin) {
       const newUser = new UserModel({
-          firstname,
-          lastname,
-          email,
-          username,
-          password,
-          ...(req.body.isGoogleLogin ? {username, password: await bcrypt.hash(password, 10),email} : { username, firstname,lastname }),
+        firstname,
+        lastname,
+        email,
+        username: email, 
       });
 
       await newUser.save();
-      res.status(201).json({ message: strings.registrationSuccess });
+      return res.status(201).json({ message: strings.registrationSuccess });
+    } else {
+      const newUser = new UserModel({
+        firstname,
+        lastname,
+        email,
+        username,
+        password: await bcrypt.hash(password, 10),
+      });
+
+      await createFolderInS3(email);
+
+      await newUser.save();
+      return res.status(201).json({ message: strings.registrationSuccess });
+    }
   } catch (error) {
-      console.error('Error registering user:', error);
-      res.status(500).json({ message: strings.internalError });
+    console.error('Error registering user:', error);
+    res.status(500).json({ message: strings.internalError });
   }
 });
 
-
-
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
-    console.log(req, "req.body")
-    const userId = req.body.user;
-    console.log('Received id', userId);
-    if (!userId) {
-      console.log({ message: strings['invalid User'] })
-    }
+    console.log(req.body, "req.body");
+    const email = req.body.user;
+    console.log('Received email', email);
+
+    const params = {
+      Bucket: 'your-s3-bucket-name',
+      Key: `${email}/${uuidv4()}_${req.file.originalname}`,
+      Body: req.file.buffer
+    };
+
+    const uploadResult = await s3.upload(params).promise();
+
+    // Save file information in MongoDB
     const file = new FileModel({
       filename: req.file.originalname,
-      data: req.file.buffer,
-      userId: userId,
+      s3Link: uploadResult.Location, // S3 link
+      userId: null, // Assuming you don't have a direct relationship between files and users
+      userEmail: email
     });
 
     await file.save();
@@ -148,21 +168,31 @@ app.delete('/deleteUser/:fileId', async (req, res) => {
   }
 });
 
+
 app.delete('/logout/:username', async (req, res) => {
   try {
     const username = req.params.username;
-    const result = await AuthTokenModel.deleteOne({ username: username });
-    if (result.deletedCount === 0) {
+    
+    // Find the user by username to get the user ID
+    const user = await AuthTokenModel.findOne({ username: username });
+    
+    if (!user) {
       return res.status(404).send({ message: strings.usernotfound });
     }
-    res.status(200).send({ message: strings.fileDeletedSuccess });
-    // OR, if you want to redirect:
-    // res.redirect('/');
+
+    // Delete tokens associated with the user ID
+    const result = await AuthTokenModel.deleteMany({ userId: user._id });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ message: strings.tokensNotFound });
+    }
+
+    res.status(200).send({ message: strings.logoutSuccess });
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: strings.internalError });
   }
-});  
+});
 
 app.get('/download/:fileId', async (req, res) => {
   try {

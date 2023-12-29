@@ -8,18 +8,6 @@ import Register from './registerComponent/Register';
 
 function App() {
 
-  // const checkLogin = () => {
-  //   const data = localStorage.getItem('userlogin');
-  //   console.log(data,"userdata")
-  //   if (data !== null || data !== '') {
-  //     setLogin(true);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   checkLogin();
-  // }, [])
-
   return (
     <div>
 

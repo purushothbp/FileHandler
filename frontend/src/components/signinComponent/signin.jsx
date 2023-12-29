@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
-import { fetchUserData } from '../services';
+import { fetchUserData } from '../../services';
 
 import {
   CButton,
@@ -22,7 +22,7 @@ import {
 
 } from '@coreui/react';
 import { useFormik } from 'formik';
-import { singinValidation } from '../validateion';
+import { singinValidation } from '../../validateion';
 import axios from 'axios';
 
 <CInputGroupText>

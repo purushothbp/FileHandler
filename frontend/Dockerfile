@@ -10,10 +10,6 @@ COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
-
-COPY . .
-
 EXPOSE 3000
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]

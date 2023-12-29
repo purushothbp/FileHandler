@@ -10,5 +10,6 @@
     "fileDeletedSuccess": "File Deleted Succesfully",
     "usernotfound":"User Not Found",
     "unknownFileType": "Unknown File Type",
-    "usernameTaken":"Username not available please try with new one"
+    "usernameTaken":"Username not available please try with new one",
+    "thankyou":"Thank You Login Again to use"
   }
