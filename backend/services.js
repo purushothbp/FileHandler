@@ -67,6 +67,7 @@ async function loginUser(req, res) {
         if (isGoogleLogin) {
             const firstName = req.body.firstname;
             const lastName = req.body.lastname;
+            const email = req.body.loginusername;
 
             user = await UserModel.findOne({ email: email });
 
@@ -189,27 +190,33 @@ function getContentTypeFromExtension(extension) {
     }
 }
 async function logoutUser(req, res) {
-    try {
-        const username = req.params.username;
-        // Find the user by username to get the user ID
-        const user = await AuthTokenModel.findOne({ username: username });
+  try {
+    const username = req.params.username;
+    console.log(req.params);
+    
+    // Find the user by username or email to get the user ID
+    const user = await UserModel.findOne({
+      $or: [{ username: username }, { email: username }]
+    });
 
-        if (!user) {
-            return res.status(404).send({ message: strings.usernotfound });
-        }
-        // Delete tokens associated with the user ID
-        const result = await AuthTokenModel.deleteMany({ userId: user._id });
-
-        if (result.deletedCount === 0) {
-            return res.status(404).send({ message: strings.tokensNotFound });
-        }
-
-        res.status(200).send({ message: strings.logoutSuccess });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send({ message: strings.internalError });
+    if (!user) {
+      return res.status(404).send({ message: strings.usernotfound });
     }
+
+    // Deletes tokens associated with the user ID
+    const result = await AuthTokenModel.deleteMany({ userId: user._id });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ message: strings.tokensNotFound });
+    }
+
+    res.status(200).send({ message: strings.logoutSuccess });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: strings.internalError });
+  }
 }
+
 async function downloadFile(req, res) {
     try {
         const fileId = req.params.fileId;

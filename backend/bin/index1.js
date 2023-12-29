@@ -9,6 +9,7 @@ const deleteRoute = require('../routes/deleteRoute');
 const updateRoute = require('../routes/updateRoute');
 const filesFetchRoute = require('../routes/fetchFilesRoute');
 const registerRoute = require('../routes/registerRoute');
+const downloadRoute = require('../routes/downloadRoute');
 
 const app = express();
 app.use(cors());
@@ -24,6 +25,7 @@ app.use('/', registerRoute);
 app.use('/', updateRoute);
 app.use('/', deleteRoute);
 app.use('/', filesFetchRoute);
+app.use('/', downloadRoute);
 
 
 app.listen(3001, () => {

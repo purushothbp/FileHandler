@@ -238,16 +238,6 @@ function getContentTypeFromExtension(extension) {
 }
 
 
-app.get('/getUsers', (req, res) => {
-  UserModel.find()
-    .then(users => {
-      res.status(200).send(users);
-    })
-    .catch(error => {
-      res.status(500).send(error);
-    });
-});
-
 
 
 app.post('/login', async (req, res) => {
