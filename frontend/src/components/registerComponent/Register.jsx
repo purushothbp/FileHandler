@@ -19,7 +19,7 @@ import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useFormik } from 'formik';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { registerformvalidateion } from '../validateion';
+import { registerformvalidateion } from '../../validateion';
 
 
 <CInputGroupText>
