@@ -14,6 +14,7 @@ async function createFolderInS3(email) {
 
     await s3.upload(params).promise();
 }
+
 async function registerUser(req, res) {
     const { firstname, lastname, username, email, password, isGoogleLogin } = req.body;
 
@@ -22,38 +23,49 @@ async function registerUser(req, res) {
     }
 
     try {
-        let existingUser = await UserModel.findOne({ email: email });
 
+        // Checking wether the user with the given email or username already exists
+        let existingUser = await UserModel.findOne({
+            $or: [{ email: email }, { username: username }]
+        });
+
+        //if exists goes with login 
         if (existingUser) {
-            return res.status(400).json({ message: strings.userExists });
+            return res.status(400).json({ message: strings.userExists, user: existingUser });
         }
-        if (isGoogleLogin) {
-            const newUser = new UserModel({
-                firstname,
-                lastname,
-                email,
-                username: email,
-            });
-            await newUser.save();
-            return res.status(201).json({ message: strings.registrationSuccess });
-        } else {
-            const newUser = new UserModel({
-                firstname,
-                lastname,
-                email,
-                username,
-                password: await bcrypt.hash(password, 10),
-            });
-            await createFolderInS3(email);
+        else{
+            if (isGoogleLogin) {
+                // If it's a Google login, store only firstname, lastname, and email
+                const newUser = new UserModel({
+                  firstname,
+                  lastname,
+                  email,
+                  username: email, // You can set username to email or any other value
+                });
+          
+                await newUser.save();
+                return res.status(201).json({ message: strings.registrationSuccess });
+              } else {
+                // If not a Google login, register the user with all input values
+                const newUser = new UserModel({
+                  firstname,
+                  lastname,
+                  email,
+                  username,
+                  password: await bcrypt.hash(password, 10),});
+                  await newUser.save();
+                  return res.status(201).json({message:strings.registrationSuccess});
+                }
+        }
 
-            await newUser.save();
-            return res.status(201).json({ message: strings.registrationSuccess });
-        }
+        
     } catch (error) {
         console.error('Error registering user:', error);
+        console.log (error.stack);
         res.status(500).json({ message: strings.internalError });
     }
 }
+
 async function loginUser(req, res) {
     const email = req.body.loginusername;
     const username = req.body.loginusername;
@@ -107,19 +119,26 @@ async function loginUser(req, res) {
         res.status(500).json({ message: strings.internalError });
     }
 }
+
 async function uploadFile(req, res) {
     try {
-        console.log(req, "req.body")
         const userId = req.body.user;
-        console.log('Received id', userId);
-        if (!userId) {
-            console.log({ message: strings['invalid User'] })
+        const MAX_FILE_SIZE_MB = 50; // Set the maximum file size limit in megabytes
+                
+        // Check if the file size exceeds the limit
+        const fileSizeInBytes = req.file.size;
+        const fileSizeInMB = fileSizeInBytes / (1024 * 1024); // Convert bytes to megabytes
+
+        if (fileSizeInMB > MAX_FILE_SIZE_MB) {
+            return res.status(400).send({ message: `File size exceeds the limit of ${MAX_FILE_SIZE_MB} MB` });
         }
+
         const file = new FileModel({
             filename: req.file.originalname,
             data: req.file.buffer,
             userId: userId,
         });
+
         await file.save();
         res.status(201).send({ message: strings.fileUploadSuccess });
     } catch (error) {
@@ -127,6 +146,7 @@ async function uploadFile(req, res) {
         res.status(500).send({ message: strings.internalError });
     }
 }
+
 async function updateFile(req, res) {
     try {
         const fileId = req.params.fileId;
