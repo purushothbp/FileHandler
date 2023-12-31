@@ -24,7 +24,7 @@ app.use('/', uploadRoute);
 app.use('/', registerRoute);
 app.use('/', updateRoute);
 app.use('/', deleteRoute);
-app.use('/api', filesFetchRoute);
+app.use('/', filesFetchRoute);
 app.use('/', downloadRoute);
 
 

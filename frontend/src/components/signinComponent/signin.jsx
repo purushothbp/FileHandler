@@ -25,10 +25,7 @@ import { useFormik } from 'formik';
 import { singinValidation } from '../../validateion';
 import axios from 'axios';
 
-<CInputGroupText>
-  <FontAwesomeIcon icon={faUser} />
-  <FontAwesomeIcon icon={faLock} />
-</CInputGroupText>
+
 
 
 const Signin = () => {
@@ -40,16 +37,16 @@ const Signin = () => {
   const [logindata, setLoginData] = useState({})
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userData = await fetchUserData();
-        setLoginData(userData);
-      } catch (error) {
-        console.error('Error setting user data:', error);
-      }
-    };
+    // const fetchData = async () => {
+    //   try {
+    //     const userData = await fetchUserData();
+    //     setLoginData(userData);
+    //   } catch (error) {
+    //     console.error('Error setting user data:', error);
+    //   }
+    // };
 
-    fetchData();
+    // fetchData();
   }, []);
 
 
@@ -57,9 +54,9 @@ const Signin = () => {
     var decode = jwtDecode(credentialResponse.credential);
     console.log(decode, "decode values")
     console.log('Hello', decode.name, 'welcome');
-    const googleLogindetails = { firstname: decode.given_name, lastname: decode.family_name, email: decode.email}
+    const googleLogindetails = { firstname: decode.given_name, lastname: decode.family_name, email: decode.email,isGoogleLogin:true}
 
-    axios.post(`${apiUrl}/Register`, googleLogindetails)
+    axios.post(`${apiUrl}/login`, googleLogindetails)
       .then((res) => {
         console.log("success", res);
         nave("../");
@@ -72,36 +69,36 @@ const Signin = () => {
     localStorage.setItem('userlogin', decode.email);
     console.log('Login success');
     
-    // Extracting first name and last name
-    const firstName = decode.given_name;
-    const lastName = decode.family_name;
+    // // Extracting first name and last name
+    // const firstName = decode.given_name;
+    // const lastName = decode.family_name;
 
-    // Update loginCredential values with first name and last name
-    loginCredential.setValues({
-        ...loginCredential.values,
-        firstname: firstName,
-        lastname: lastName
-    });
+    // // Update loginCredential values with first name and last name
+    // loginCredential.setValues({
+    //     ...loginCredential.values,
+    //     firstname: firstName,
+    //     lastname: lastName
+    // });
 
-    fetch('http://localhost:3001/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            loginusername: decode.email,
-            isGoogleLogin: true,
-            firstname: firstName,
-            lastname: lastName
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Server Response:', data);
-    })
-    .catch(error => {
-        console.error('Error logging in:', error);
-    });
+    // fetch('http://localhost:3001/login', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //         loginusername: decode.email,
+    //         isGoogleLogin: true,
+    //         firstname: firstName,
+    //         lastname: lastName
+    //     }),
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     console.log('Server Response:', data);
+    // })
+    // .catch(error => {
+    //     console.error('Error logging in:', error);
+    // });
 
     setIsAuthenticated(true);
 };

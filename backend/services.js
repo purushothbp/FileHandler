@@ -148,10 +148,14 @@ async function uploadFile(req, res) {
 }
 
 async function updateFile(req, res) {
+    console.log(req,"fetch files")
     try {
-        const fileId = req.params.fileId;
+        const fileId = req.params.userId;
+        console.log(fileId,"userid")
 
         const existingFile = await FileModel.findById(fileId);
+
+        console.log(existingFile,"files of user")
 
         if (!existingFile) {
             return res.status(404).send({ message: strings.fileNotFOund });
