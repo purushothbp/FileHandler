@@ -61,7 +61,6 @@ async function registerUser(req, res) {
         
     } catch (error) {
         console.error('Error registering user:', error);
-        console.log (error.stack);
         res.status(500).json({ message: strings.internalError });
     }
 }
@@ -102,8 +101,7 @@ async function loginUser(req, res) {
             user = await UserModel.findOne({ email: email });
 
             if (!user) {
-                console.log('User not found.');
-                return res.status(401).json({ message: strings.loginError });
+                return res.status(401).json({ message: strings.usernotfound });
             }
         }
         const token = jwt.sign({ userId: user._id, username: user.username }, 'your-secret-key');
@@ -111,8 +109,6 @@ async function loginUser(req, res) {
 
         const authToken = new AuthTokenModel({ userId: user._id, username: user.username, token });
         authToken.save();
-
-        console.log('Login successful.');
         return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
     } catch (error) {
         console.error('Error logging in user:', error);
@@ -136,7 +132,8 @@ async function uploadFile(req, res) {
         const file = new FileModel({
             filename: req.file.originalname,
             data: req.file.buffer,
-            userId: userId,
+            userId: null,
+            userEmail:email
         });
 
         await file.save();
@@ -148,41 +145,34 @@ async function uploadFile(req, res) {
 }
 
 async function updateFile(req, res) {
-    console.log(req,"fetch files")
     try {
-        const fileId = req.params.userId;
-        console.log(fileId,"userid")
-
+        const fileId = req.params.fileId;
+    
         const existingFile = await FileModel.findById(fileId);
-
-        console.log(existingFile,"files of user")
-
+    
         if (!existingFile) {
-            return res.status(404).send({ message: strings.fileNotFOund });
+          return res.status(404).send({ message: strings.fileNotFOund });
         }
-
+    
         existingFile.filename = req.file.originalname;
         existingFile.data = req.file.buffer;
-
+    
         await existingFile.save();
-
+    
         res.status(200).send({ message: strings.fileUploadSuccess });
-    } catch (error) {
+      } catch (error) {
         console.error(error);
         res.status(500).send({ message: strings.internalError });
-    }
+      }
 }
 async function fetchFiles(req, res) {
     const userId = req.params.userId
-    console.log(userId, "userIdinget")
-
-    try {
-        const files = await FileModel.find({ userId });
-        res.status(200).json(files);
-    } catch (error) {
-        console.error('Error fetching files:', error);
-        res.status(500).json({ message: strings.internalError });
-    }
+  try {
+    const files = await FileModel.find({ userId });
+    res.status(200).json(files);
+  } catch (error) {
+    res.status(500).json({ message: strings.internalError });
+  }
 }
 async function deleteFile(req, res) {
     try {
@@ -216,7 +206,6 @@ function getContentTypeFromExtension(extension) {
 async function logoutUser(req, res) {
   try {
     const username = req.params.username;
-    console.log(req.params);
     
     // Find the user by username or email to get the user ID
     const user = await UserModel.findOne({
