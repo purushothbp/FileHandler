@@ -18,6 +18,7 @@ const Home = () => {
         fileInputRef.current.click();
     };
 
+    //the below funtion handles the files reuploaded 
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
         const maxSizeInBytes = 50 * 1024 * 1024; // 50MB
