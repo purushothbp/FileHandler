@@ -5,6 +5,6 @@ const router = express.Router();
 
 // delete route which alows users to delete the files that already available 
 
-router.delete('/deleteUser/:fileId', services.updateFile);
+router.delete('/deleteUser/:fileId', services.deleteFile);
 
 module.exports = router;

@@ -5,6 +5,6 @@ const router = express.Router();
 
 // download route which alows users to download the files that already available 
 
-router.get('/files/:userId', services.deleteFile);
+router.get('/download/:_id', services.downloadFile);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const services = require('../services');
 
 const router = express.Router();
 
-// delete route which alows users to delete the files that already available 
+// fetchfiles route which fetch the files that already available based on the userId. 
 
 router.get('/files/:userId', services.fetchFiles);
 

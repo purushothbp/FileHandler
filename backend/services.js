@@ -1,10 +1,14 @@
+//bcrypt used to create the 256 digit authToken.
+//jwtwebtoken will be used to decode the file and checks for user verification
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const AuthTokenModel = require('../backend/models/authtoken');
 const UserModel = require('../backend/models/users');
 const FileModel = require('../backend/models/files');
 const strings = require('../backend/strings.json');
+const path = require('path')
 
+//creates the bucket in s3 to store the files and data
 async function createFolderInS3(email) {
     const params = {
         Bucket: 'your-s3-bucket-name',
@@ -14,7 +18,7 @@ async function createFolderInS3(email) {
 
     await s3.upload(params).promise();
 }
-
+//creates the user registration form and validates the details and stores those in DB.
 async function registerUser(req, res) {
     const { firstname, lastname, username, email, password, isGoogleLogin } = req.body;
 
@@ -64,14 +68,13 @@ async function registerUser(req, res) {
         res.status(500).json({ message: strings.internalError });
     }
 }
-
+//login user checks with the login details and creates the authToken in DB foe specific user.
 async function loginUser(req, res) {
     const email = req.body.loginusername;
     const username = req.body.loginusername;
 
     // Check if it's a Google login
     const isGoogleLogin = req.body.isGoogleLogin;
-
     try {
         let user;
 
@@ -81,7 +84,7 @@ async function loginUser(req, res) {
             const email = req.body.loginusername;
 
             user = await UserModel.findOne({ email: email });
-
+            //whrwe the schema for user details will be stored 
             if (!user) {
                 user = new UserModel({
                     email: email,
@@ -98,6 +101,7 @@ async function loginUser(req, res) {
                 await user.save();
             }
         } else {
+            //checks with wether the user is present or not
             user = await UserModel.findOne({ email: email });
 
             if (!user) {
@@ -107,7 +111,7 @@ async function loginUser(req, res) {
         const token = jwt.sign({ userId: user._id, username: user.username }, 'your-secret-key');
         res.cookie('access_token', token, { httpOnly: true });
 
-        const authToken = new AuthTokenModel({ userId: user._id, username: user.username, token });
+        const authToken = new AuthTokenModel({ userId: user._id, username: user.email, token });
         authToken.save();
         return res.status(200).json({ userId: user._id, message: strings.loginSuccess });
     } catch (error) {
@@ -115,7 +119,7 @@ async function loginUser(req, res) {
         res.status(500).json({ message: strings.internalError });
     }
 }
-
+//This function uploads the file to DB along with the User's identity.
 async function uploadFile(req, res) {
     try {
         const userId = req.body.user;
@@ -132,8 +136,7 @@ async function uploadFile(req, res) {
         const file = new FileModel({
             filename: req.file.originalname,
             data: req.file.buffer,
-            userId: null,
-            userEmail:email
+            userId: userId,
         });
 
         await file.save();
@@ -143,17 +146,18 @@ async function uploadFile(req, res) {
         res.status(500).send({ message: strings.internalError });
     }
 }
-
+//This function re-uploads the file to DB.
 async function updateFile(req, res) {
     try {
+        // checking the user id for the file.
         const fileId = req.params.fileId;
-    
+        //checking wether the file is already exists or not
         const existingFile = await FileModel.findById(fileId);
     
         if (!existingFile) {
           return res.status(404).send({ message: strings.fileNotFOund });
         }
-    
+        //Now the existing file has been changed with the now Uploaded file.
         existingFile.filename = req.file.originalname;
         existingFile.data = req.file.buffer;
     
@@ -165,6 +169,7 @@ async function updateFile(req, res) {
         res.status(500).send({ message: strings.internalError });
       }
 }
+//This function fetches the files that are available with the UserId;
 async function fetchFiles(req, res) {
     const userId = req.params.userId
   try {
@@ -174,6 +179,7 @@ async function fetchFiles(req, res) {
     res.status(500).json({ message: strings.internalError });
   }
 }
+//Deletes the file based on the user's request.
 async function deleteFile(req, res) {
     try {
         const fileId = req.params.fileId;
@@ -187,6 +193,7 @@ async function deleteFile(req, res) {
         res.status(500).send({ message: strings.internalError });
     }
 }
+//This defines the file formats allowed to upload.
 function getContentTypeFromExtension(extension) {
     switch (extension.toLowerCase()) {
         case '.pdf':
@@ -200,9 +207,10 @@ function getContentTypeFromExtension(extension) {
         case '.png':
             return 'image/png';
         default:
-            return null;
+            return 'application/octet-stream';
     }
 }
+//logout function will delete's the existing or logged user.
 async function logoutUser(req, res) {
   try {
     const username = req.params.username;
@@ -229,15 +237,15 @@ async function logoutUser(req, res) {
     res.status(500).send({ message: strings.internalError });
   }
 }
-
+//This function will allows the user to download th file based on user request.
 async function downloadFile(req, res) {
     try {
-        const fileId = req.params.fileId;
-
+        const fileId = req.params._id;
+        console.log(req.params);
         const file = await FileModel.findById(fileId);
 
         if (!file) {
-            return res.status(404).send({ message: strings.fileNotFOund });
+            return res.status(404).send({ message: strings.fileNotFound });
         }
 
         const extension = path.extname(file.filename);
@@ -255,16 +263,17 @@ async function downloadFile(req, res) {
         res.status(500).send({ message: strings.internalError });
     }
 }
+//The simple function will get's the users who are available in the DB.
 async function getUsers(req, res) {
     UserModel.find()
         .then(users => {
-            res.status(200).send(users);
+            res.status(200).send({message: strings.loginSuccess});
         })
         .catch(error => {
-            res.status(500).send(error);
+            res.status(500).send({message: string.usernotfound});
         });
 }
-
+//exporting the functions that are available to use.
 module.exports = {
     createFolderInS3,
     updateFile,

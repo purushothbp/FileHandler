@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
+
 const loginRoute = require('../routes/loginRoute');
 const logoutRoute = require('../routes/logoutRoute');
 const uploadRoute = require('../routes/uploadRoute');
@@ -16,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+//mongo url to save the files and data.
 mongoose.connect("mongodb://localhost:27017/documents");
 
 app.use('/', loginRoute);

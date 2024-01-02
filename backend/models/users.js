@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+//This schema will be storing the user details for registration and login.
 const userSchema = new mongoose.Schema({
   firstname: { type: String, required:false },
   lastname: { type: String, required:false },
@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: false },
 });
 
+//compares the password for the user who're trying to login.
 userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return candidatePassword === this.password;
