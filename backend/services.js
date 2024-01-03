@@ -1,5 +1,6 @@
 //bcrypt used to create the 256 digit authToken.
 //jwtwebtoken will be used to decode the file and checks for user verification
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const AuthTokenModel = require('../backend/models/authtoken');
@@ -7,12 +8,26 @@ const UserModel = require('../backend/models/users');
 const FileModel = require('../backend/models/files');
 const strings = require('../backend/strings.json');
 const path = require('path')
+const AWS = require('aws-sdk');
+const fs = require('fs');
+const multer = require('multer');
+const { promisify } = require('util');
+
 
 //creates the bucket in s3 to store the files and data
-async function createFolderInS3(email) {
+
+AWS.config.update({
+    accessKeyId: 'AKIAWGGD2XTNEEFXJGG2',
+    secretAccessKey: 'ck3ILswxtCgksWYSYBnJ70qyryS8klsDFMHvyu7s',
+    region: 'ap-south-1', // e.g., 'us-east-1'
+});
+
+const s3 = new AWS.S3();
+
+async function createFolderInS3(userId) {
     const params = {
-        Bucket: 'your-s3-bucket-name',
-        Key: `${email}/`,
+        Bucket: 'filehandlers3' ,
+        Key: `${userId}/`,
         Body: ''
     };
 
@@ -84,8 +99,9 @@ async function loginUser(req, res) {
             const email = req.body.loginusername;
 
             user = await UserModel.findOne({ email: email });
-            //whrwe the schema for user details will be stored 
+            //where the schema for user details will be stored 
             if (!user) {
+                
                 user = new UserModel({
                     email: email,
                     username: username,
@@ -93,6 +109,7 @@ async function loginUser(req, res) {
                     lastName: lastName
                 });
                 await user.save();
+                console.log(user)
             } else {
                 user = new UserModel({
                     firstName: firstName,
@@ -119,12 +136,15 @@ async function loginUser(req, res) {
         res.status(500).json({ message: strings.internalError });
     }
 }
-//This function uploads the file to DB along with the User's identity.
+//This function uploads the file to DB (Mongo and s3) along with the User's identity.
 async function uploadFile(req, res) {
     try {
+        if (!req.file) {
+            return res.status(400).send({ message: 'No file uploaded' });
+        }
         const userId = req.body.user;
         const MAX_FILE_SIZE_MB = 50; // Set the maximum file size limit in megabytes
-                
+
         // Check if the file size exceeds the limit
         const fileSizeInBytes = req.file.size;
         const fileSizeInMB = fileSizeInBytes / (1024 * 1024); // Convert bytes to megabytes
@@ -133,6 +153,7 @@ async function uploadFile(req, res) {
             return res.status(400).send({ message: `File size exceeds the limit of ${MAX_FILE_SIZE_MB} MB` });
         }
 
+        // Save to MongoDB
         const file = new FileModel({
             filename: req.file.originalname,
             data: req.file.buffer,
@@ -140,35 +161,59 @@ async function uploadFile(req, res) {
         });
 
         await file.save();
+
+        // Save to S3
+        await createFolderInS3(userId); // Create user folder in S3 if not exists
+
+        const s3Params = {
+            Bucket: 'filehandlers3',
+            Key: `${userId}/${req.file.originalname}`,
+            Body: req.file.buffer,
+        };
+
+        await s3.upload(s3Params).promise();
+
         res.status(201).send({ message: strings.fileUploadSuccess });
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: strings.internalError });
     }
 }
+
 //This function re-uploads the file to DB.
 async function updateFile(req, res) {
     try {
-        // checking the user id for the file.
         const fileId = req.params.fileId;
-        //checking wether the file is already exists or not
         const existingFile = await FileModel.findById(fileId);
-    
+
         if (!existingFile) {
-          return res.status(404).send({ message: strings.fileNotFOund });
+            return res.status(404).send({ message: strings.fileNotFOund });
         }
-        //Now the existing file has been changed with the now Uploaded file.
+
+        const userId = existingFile.userId;
+        const originalFilename = existingFile.filename;
+
         existingFile.filename = req.file.originalname;
         existingFile.data = req.file.buffer;
-    
+
         await existingFile.save();
-    
+
+        // Upload the updated file to S3 with the same key as the original file
+        const s3Params = {
+            Bucket: 'filehandlers3',
+            Key: `${userId}/${originalFilename}`,
+            Body: req.file.buffer,
+        };
+
+        await s3.upload(s3Params).promise();
+
         res.status(200).send({ message: strings.fileUploadSuccess });
-      } catch (error) {
+    } catch (error) {
         console.error(error);
         res.status(500).send({ message: strings.internalError });
-      }
+    }
 }
+
 //This function fetches the files that are available with the UserId;
 async function fetchFiles(req, res) {
     const userId = req.params.userId
@@ -180,19 +225,37 @@ async function fetchFiles(req, res) {
   }
 }
 //Deletes the file based on the user's request.
+const s3DeleteObject = promisify(s3.deleteObject.bind(s3));
 async function deleteFile(req, res) {
     try {
         const fileId = req.params.fileId;
-        const result = await FileModel.deleteOne({ _id: fileId });
-        if (result.deletedCount === 0) {
+
+        // Fetch file details from MongoDB
+        const file = await FileModel.findById(fileId);
+
+        if (!file) {
             return res.status(404).send({ message: strings.fileNotFOund });
         }
+
+        // Delete file from MongoDB
+        const deletionResult = await FileModel.deleteOne({ _id: fileId });
+
+        if (deletionResult.deletedCount === 0) {
+            return res.status(404).send({ message: strings.fileNotFOund });
+        }
+
+        // Delete file from S3
+        const userId = file.userId; // Assuming userId is stored in the FileModel
+        const s3Key = `${userId}/${file.filename}`;
+        await s3DeleteObject({ Bucket: 'filehandlers3', Key: s3Key });
+
         res.status(200).send({ message: strings.fileDeletedSuccess });
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: strings.internalError });
     }
 }
+
 //This defines the file formats allowed to upload.
 function getContentTypeFromExtension(extension) {
     switch (extension.toLowerCase()) {

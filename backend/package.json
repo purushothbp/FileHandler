@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1524.0",
+    "aws-sdk": "^2.1528.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
@@ -26,9 +26,10 @@
     "mongoose": "^8.0.3",
     "morgan": "~1.9.1",
     "multer": "^1.4.5-lts.1",
+    "multer-s3": "^3.0.1",
     "nodemon": "^3.0.2",
     "nvm": "^0.0.4",
     "path": "^0.12.7",
-    "pug": "2.0.0-beta11"
+    "util": "^0.12.5"
   }
 }
