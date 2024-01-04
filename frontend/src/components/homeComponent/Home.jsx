@@ -111,7 +111,7 @@ const Home = () => {
     return (
         <div className='bg-colour' >
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".doc, .docx, .pdf, .xlsx, .jpg, .jpeg, .png" onChange={handleFileChange} />
-            <button type="button" onClick={handleButtonClick} className="btn btn-primary mx-5 mt-1"><FontAwesomeIcon icon={faUpload} />Upload</button>
+            <button type="button" onClick={handleButtonClick} className="btn btn-primary mx-5 mt-1" button="true"><FontAwesomeIcon icon={faUpload} />Upload</button>
              <button type="button"  className="btn btn-primary mt-1 buttonstyle" onClick={userLogOut}><FontAwesomeIcon icon={faRightToBracket} />Logout</button>    
             <table className='tablestyle'>
                 <thead>

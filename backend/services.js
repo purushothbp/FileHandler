@@ -112,6 +112,7 @@ async function loginUser(req, res) {
                 console.log(user)
             } else {
                 user = new UserModel({
+                    email: email,
                     firstName: firstName,
                     lastName: lastName,
                 })
@@ -187,21 +188,27 @@ async function updateFile(req, res) {
         const existingFile = await FileModel.findById(fileId);
 
         if (!existingFile) {
-            return res.status(404).send({ message: strings.fileNotFOund });
+            return res.status(404).send({ message: strings.fileNotFound });
         }
 
         const userId = existingFile.userId;
         const originalFilename = existingFile.filename;
 
+        // Delete the original file in S3
+        await deleteFileInS3(userId, originalFilename);
+
+        // Update file details in MongoDB
         existingFile.filename = req.file.originalname;
         existingFile.data = req.file.buffer;
-
         await existingFile.save();
 
-        // Upload the updated file to S3 with the same key as the original file
+        // Check if the user folder exists in S3, and create it if not
+        await createFolderInS3(userId);
+
+        // Upload the updated file to S3 within the user folder
         const s3Params = {
             Bucket: 'filehandlers3',
-            Key: `${userId}/${originalFilename}`,
+            Key: `${userId}/${req.file.originalname}`,
             Body: req.file.buffer,
         };
 
@@ -214,16 +221,44 @@ async function updateFile(req, res) {
     }
 }
 
+async function deleteFileInS3(userId, filename) {
+    const s3Params = {
+        Bucket: 'filehandlers3',
+        Key: `${userId}/${filename}`,
+    };
+
+    await s3.deleteObject(s3Params).promise();
+}
+
+async function createFolderInS3(userId) {
+    const params = {
+        Bucket: 'filehandlers3',
+        Key: `${userId}/`,
+        Body: '', // Empty content for creating a folder
+    };
+
+    await s3.upload(params).promise();
+}
+
+
 //This function fetches the files that are available with the UserId;
 async function fetchFiles(req, res) {
-    const userId = req.params.userId
-  try {
-    const files = await FileModel.find({ userId });
-    res.status(200).json(files);
-  } catch (error) {
-    res.status(500).json({ message: strings.internalError });
-  }
+    const userId = req.params.userId;
+    try {
+        // Fetch file details from MongoDB
+        const files = await FileModel.find({ userId });
+
+        if (files.length === 0) {
+            return res.status(404).json({ message: strings.filesNotFound });
+        }
+
+        res.status(200).json(files);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: strings.internalError });
+    }
 }
+
 //Deletes the file based on the user's request.
 const s3DeleteObject = promisify(s3.deleteObject.bind(s3));
 async function deleteFile(req, res) {
