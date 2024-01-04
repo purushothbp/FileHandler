@@ -1,11 +1,10 @@
 import './signin.css';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
-import { fetchUserData } from '../../services';
 
 import {
   CButton,
@@ -34,27 +33,14 @@ const Signin = () => {
   const apiUrl = "http://localhost:3001";
 
 
-  const [logindata, setLoginData] = useState({})
 
-  useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     const userData = await fetchUserData();
-    //     setLoginData(userData);
-    //   } catch (error) {
-    //     console.error('Error setting user data:', error);
-    //   }
-    // };
-
-    // fetchData();
-  }, []);
 
 
   const handleLoginSuccess = (credentialResponse) => {
     var decode = jwtDecode(credentialResponse.credential);
     console.log(decode, "decode values")
     console.log('Hello', decode.name, 'welcome');
-    const googleLogindetails = { firstname: decode.given_name, lastname: decode.family_name, email: decode.email,isGoogleLogin:true}
+    const googleLogindetails = { firstname: decode.given_name, lastname: decode.family_name, email: decode.email, isGoogleLogin: true }
 
     axios.post(`${apiUrl}/login`, googleLogindetails)
       .then((res) => {
@@ -66,42 +52,13 @@ const Signin = () => {
 
       });
 
+
     localStorage.setItem('userlogin', decode.email);
     console.log('Login success');
-    
-    // // Extracting first name and last name
-    // const firstName = decode.given_name;
-    // const lastName = decode.family_name;
 
-    // // Update loginCredential values with first name and last name
-    // loginCredential.setValues({
-    //     ...loginCredential.values,
-    //     firstname: firstName,
-    //     lastname: lastName
-    // });
-
-    // fetch('http://localhost:3001/login', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //         loginusername: decode.email,
-    //         isGoogleLogin: true,
-    //         firstname: firstName,
-    //         lastname: lastName
-    //     }),
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     console.log('Server Response:', data);
-    // })
-    // .catch(error => {
-    //     console.error('Error logging in:', error);
-    // });
 
     setIsAuthenticated(true);
-};
+  };
 
 
   const handleLoginFailure = () => {
@@ -118,16 +75,13 @@ const Signin = () => {
     nave('/Home');
   };
 
-
-
-
   const loginCredential = useFormik(
     {
       initialValues: {
         loginusername: '',
         loginpassword: '',
-        firstname:'',
-        lastName:''
+        firstname: '',
+        lastName: ''
 
       },
 
@@ -140,7 +94,6 @@ const Signin = () => {
             },
             body: JSON.stringify(values),
           });
-
           const data = await response.json();
 
           if (response.ok) {
@@ -151,7 +104,6 @@ const Signin = () => {
           } else {
             // Login failed
             console.log('Login failed:', data.message);
-            // You can handle the error message display or other actions here
           }
         } catch (error) {
           console.error('Error logging in:', error);
