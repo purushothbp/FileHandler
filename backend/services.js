@@ -12,6 +12,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 const multer = require('multer');
 const { promisify } = require('util');
+const { Max_UserName_Size, Max_Password_Size, hash_rounds, MAX_FILE_SIZE_MB, File_length } = require('./constants');
 
 
 //creates the bucket in s3 to store the files and data
@@ -19,7 +20,7 @@ const { promisify } = require('util');
 AWS.config.update({
     accessKeyId: 'AKIAWGGD2XTNEEFXJGG2',
     secretAccessKey: 'ck3ILswxtCgksWYSYBnJ70qyryS8klsDFMHvyu7s',
-    region: 'ap-south-1', // e.g., 'us-east-1'
+    region: 'ap-south-1',
 });
 
 const s3 = new AWS.S3();
@@ -37,7 +38,7 @@ async function createFolderInS3(userId) {
 async function registerUser(req, res) {
     const { firstname, lastname, username, email, password, isGoogleLogin } = req.body;
 
-    if (username && password && (username.length > 25 || password.length > 10)) {
+    if (username && password && (username.length > Max_UserName_Size || password.length >Max_Password_Size)) {
         return res.status(400).json({ message: strings.invalidLength });
     }
 
@@ -71,7 +72,7 @@ async function registerUser(req, res) {
                   lastname,
                   email,
                   username,
-                  password: await bcrypt.hash(password, 10),});
+                  password: await bcrypt.hash(password, hash_rounds),});
                   await newUser.save();
                   return res.status(201).json({message:strings.registrationSuccess});
                 }
@@ -109,7 +110,6 @@ async function loginUser(req, res) {
                     lastName: lastName
                 });
                 await user.save();
-                console.log(user)
             } else {
                 user = new UserModel({
                     email: email,
@@ -144,7 +144,7 @@ async function uploadFile(req, res) {
             return res.status(400).send({ message: 'No file uploaded' });
         }
         const userId = req.body.user;
-        const MAX_FILE_SIZE_MB = 50; // Set the maximum file size limit in megabytes
+         // Set the maximum file size limit in megabytes
 
         // Check if the file size exceeds the limit
         const fileSizeInBytes = req.file.size;
@@ -248,7 +248,7 @@ async function fetchFiles(req, res) {
         // Fetch file details from MongoDB
         const files = await FileModel.find({ userId });
 
-        if (files.length === 0) {
+        if (files.length === File_length) {
             return res.status(404).json({ message: strings.filesNotFound });
         }
 
