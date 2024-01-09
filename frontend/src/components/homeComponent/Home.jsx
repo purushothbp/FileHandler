@@ -130,7 +130,7 @@ const Home = () => {
                             <td>{val.filename}</td>
                             <td> <button className="btn btn-outline-success" onClick={() => editFile(val)}><FontAwesomeIcon icon={faEdit} /> Edit</button></td>
                             <td> <a href={`http://localhost:3001/download/${val._id}`} className="btn btn-outline-success mx-3" target="_blank" rel="noopener noreferrer" ><FontAwesomeIcon icon={faDownload} /> Download</a> </td>
-                            <td><button button className="btn btn-outline-danger" onClick={() => deleteFileHandler(val._id)}><FontAwesomeIcon icon={faTrash} />Delete</button></td>
+                            <td><button className="btn btn-outline-danger" onClick={() => deleteFileHandler(val._id)}><FontAwesomeIcon icon={faTrash} />Delete</button></td>
                         </tr>
                     ))}
                 </tbody>
