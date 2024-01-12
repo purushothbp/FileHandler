@@ -6,22 +6,36 @@ const jwt = require('jsonwebtoken');
 const AuthTokenModel = require('../backend/models/authtoken');
 const UserModel = require('../backend/models/users');
 const FileModel = require('../backend/models/files');
-const strings = require('../backend/strings.json');
+const strings = require('./strings');
 const path = require('path')
 const AWS = require('aws-sdk');
 const fs = require('fs');
-const multer = require('multer');
+const env = process.env.NODE_ENV || "development";
 const { promisify } = require('util');
 const { Max_UserName_Size, Max_Password_Size, hash_rounds, MAX_FILE_SIZE_MB, File_length } = require('./constants');
 
 
+if (env === "development" || env === "test") {
+    const config = require("./config/config.json");
+    const envConfig = config[env];
+    Object.keys(envConfig).forEach((key) => {
+      process.env[key] = envConfig[key];
+    });
+  }
+
 //creates the bucket in s3 to store the files and data
 
+const accessKeyId = process.env.ACCESS_KEY_ID;
+const secretAccessKey = process.env.SECRET_ACCESS_KEY_ID;
+const region = process.env.REGION;
+
 AWS.config.update({
-    accessKeyId: 'AKIAWGGD2XTNEEFXJGG2',
-    secretAccessKey: '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',
-    region: 'ap-south-1',
+    accessKeyId: accessKeyId,
+    secretAccessKey: secretAccessKey,
+    region: region,
+    
 });
+console.log(accessKeyId,region, secretAccessKey)
 
 const s3 = new AWS.S3();
 

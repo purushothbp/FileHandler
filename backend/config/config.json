@@ -1,0 +1,17 @@
+{
+    "test":{
+      "PORT": 3001,
+      "MONGO_URI": "mongodb://localhost:27017/documents",
+      "ACCESS_KEY_ID": "AKIAWGGD2XTNEEFXJGG2",
+      "SECRET_ACCESS_KEY_ID":"ck3ILswxtCgksWYSYBnJ70qyryS8klsDFMHvyu7s",
+      "REGION":"ap-south-1"
+    },
+    "development":{
+      "PORT": 3001,
+      "MONGO_URI": "mongodb://localhost:27017/documents",
+      "ACCESS_KEY_ID": "AKIAWGGD2XTNEEFXJGG2",
+      "SECRET_ACCESS_KEY_ID":"ck3ILswxtCgksWYSYBnJ70qyryS8klsDFMHvyu7s",
+      "REGION":"ap-south-1"
+    }
+  } 
+

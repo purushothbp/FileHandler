@@ -1,9 +1,8 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-
+const env = process.env.NODE_ENV || "development";
 const loginRoute = require('../routes/loginRoute');
 const logoutRoute = require('../routes/logoutRoute');
 const uploadRoute = require('../routes/uploadRoute');
@@ -18,8 +17,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+if (env === "development" || env === "test") {
+  const config = require("../config/config.json");
+  const envConfig = config[env];
+  Object.keys(envConfig).forEach((key) => {
+    process.env[key] = envConfig[key];
+  });
+}
+const PORT = process.env.PORT;
+
+
 //mongo url to save the files and data.
-mongoose.connect("mongodb://localhost:27017/documents");
+
+mongoose.connect(process.env.MONGO_URI);
 
 app.use('/', loginRoute);
 app.use('/', logoutRoute);
@@ -31,6 +41,6 @@ app.use('/', filesFetchRoute);
 app.use('/', downloadRoute);
 
 
-app.listen(3001, () => {
-  console.log(`Server is running on http://localhost:${3001}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
